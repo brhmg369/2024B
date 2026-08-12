@@ -1,31 +1,35 @@
 % !TeX root = ../main.tex
 \section{支撑材料与复现说明}
 
-\subsection{问题一复现环境与文件对应}
+\subsection{复现环境与文件说明}
 
-问题一计算在 Windows 环境下使用 Python 3.12.10 完成，绘图使用 Matplotlib 3.10.9；概率计算为确定性精确枚举，不使用随机数。表~\ref{tab:q1-supporting-files}给出支撑材料与论文结果的对应关系。
+全部计算在 Windows 环境使用 Python 3.12.10 完成，绘图使用 Matplotlib 3.10.9，问题三线性方程组使用 scipy 稀疏求解（与稠密求解结果一致，最大差异约 $5\times10^{-7}$ 元）。问题一为确定性精确枚举；问题二为确定性值迭代；问题三遗传算法使用固定种子 $2024$--$2043$；问题四后验情景抽样使用固定种子，先验敏感性与情景数稳定性实验分别使用 $S=1000,5000,10000,20000$ 与 Jeffreys 先验重算。表~\ref{tab:appendix-files}给出支撑材料与论文结果的对应关系。
 
 \begin{table}[H]
   \centering
-  \caption{问题一支撑材料及用途}
-  \label{tab:q1-supporting-files}
-  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.42\textwidth}X}
+  \caption{支撑材料及用途}
+  \label{tab:appendix-files}
+  \small
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.46\textwidth}>{\raggedright\arraybackslash}X}
     \toprule
     文件 & 用途 \\
     \midrule
-    \path{code/problem1.py} & 二项与超几何概率、临界值搜索、观测判定、敏感性分析和图表生成 \\
-    \path{code/test_problem1.py} & 概率归一化、边界值、三态判定和有限总体退化性质测试 \\
-    \path{results/q1_summary.json} & 正式参数、最小样本量、临界概率和一致性校核汇总 \\
-    \path{results/q1_thresholds.csv} & 样本量 $1$ 至 $200$ 的接收与拒收阈值 \\
-    \path{results/q1_sensitivity.csv} & 置信水平敏感性原始结果 \\
-    \path{results/q1_population_sensitivity.csv} & 有限总体量检验原始结果 \\
+    \path{code/problem1.py}、\path{code/test_problem1.py} & 问题一二项/超几何概率、临界值、三态判定与测试 \\
+    \path{code/problem2_figures.py}、\path{code/test_problem2.py} & 问题二图形包、验证数据与测试 \\
+    \path{code/problem3_figures.py}、\path{code/problem3_schematic.py} & 问题三图形包与机制图渲染 \\
+    \path{code/problem3_sensitivity.py}、\path{code/problem3_mc_check.py} & 问题三五类参数全枚举敏感性与 Monte Carlo 统计检验 \\
+    \path{code/problem4_figures.py} & 问题四后验分布与样本量收敛图 \\
+    \path{programs/q2_decision_model.py}、\path{programs/q3_decision_model.py} & 问题二信念状态 MDP 与问题三期望递推/GA/全枚举 \\
+    \path{programs/q4_bayesian_model.py} & 问题四 Beta 后验情景、七变量/16 位策略重决策与样本量收敛检验 \\
+    \path{results/}、\path{programs/results/} & 各问汇总结果与原始 CSV/JSON（含 \path{q3_mc_stats.json}、\path{q4_prior_sensitivity.csv}、\path{q4_scenario_stability.csv}） \\
+    \path{figures/q1/}、\path{figures/q2/}、\path{figures/q3/}、\path{figures/q4/} & 正文各图 PDF/SVG 及绘图源数据 \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-\subsection{问题一核心程序}
+\subsection{核心算法与关键程序}
 
-下列代码分别给出二项与超几何概率计算，以及固定样本临界值、最小样本量和三态判定的核心实现。完整程序与全部结果文件随支撑材料一并提交。
+下列代码给出各问核心实现的核心片段（每问 30--50 行），完整程序随支撑材料提交。
 
 \lstinputlisting[
   language=Python,
@@ -37,71 +41,11 @@
 
 \lstinputlisting[
   language=Python,
-  firstline=237,
-  lastline=450,
-  caption={问题一的临界值搜索与观测判定},
-  label={lst:q1-thresholds}
-]{../code/problem1.py}
-
-\section{问题二复现说明}
-
-问题二程序从初始联合信念出发生成可达状态，执行值迭代并输出状态策略、动作价值、收敛历史和六种情形汇总；绘图程序在此基础上重算参数扰动与信念离散精度，生成正文三幅 Figure Pack。两段程序均为确定性计算，不使用随机种子。
-
-\begin{table}[H]
-  \centering
-  \caption{问题二支撑材料及用途}
-  \label{tab:q2-supporting-files}
-  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.44\textwidth}X}
-    \toprule
-    文件 & 用途 \\
-    \midrule
-    \path{programs/q2_decision_model.py} & 信念状态、贝叶斯转移、Bellman 值迭代及结果导出 \\
-    \path{code/problem2_figures.py} & 策略路径、收敛、离散精度和参数敏感性 Figure Pack \\
-    \path{code/test_problem2.py} & 转移概率、Bellman 残差、正式成本与受限策略比较测试 \\
-    \path{programs/results/q2_summary.json} & 求解器设置、六种情形结果及最大残差汇总 \\
-    \path{programs/results/q2_state_policy.csv} & 所有可达信念状态的最优动作 \\
-    \path{programs/results/q2_policy_results.csv} & 各状态下全部可行动作的 $Q$ 值 \\
-    \path{figures/q2/data/q2_sensitivity.csv} & 三类参数扰动的利润、策略切换与残差 \\
-    \path{figures/q2/data/q2_rounding_validation.csv} & 四至七位信念合并精度的成本比较 \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-下列程序段给出动作价值、Bellman 最优动作选择与值迭代的核心实现；完整程序及全部结果随支撑材料提交。
-
-\lstinputlisting[
-  language=Python,
-  firstline=373,
-  lastline=455,
-  caption={问题二的 Bellman 动作选择与值迭代},
+  firstline=432,
+  lastline=470,
+  caption={问题二的值迭代与策略输出},
   label={lst:q2-model}
 ]{../programs/q2_decision_model.py}
-
-\section{问题三复现说明}
-
-问题三程序按 16 位策略生成可达状态并求解期望成本线性方程组，再用遗传算法搜索，以全枚举全部 $65536$ 个策略作为全局最优基准；绘图程序重跑 20 次 GA 记录逐代收敛历史，并生成利润分布、前 10 名和参数敏感性 Figure Pack，示意脚本按同一布局渲染生产结构图。GA 使用固定种子，全部结果可确定性复现。
-
-\begin{table}[H]
-  \centering
-  \caption{问题三支撑材料及用途}
-  \label{tab:q3-supporting-files}
-  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.44\textwidth}X}
-    \toprule
-    文件 & 用途 \\
-    \midrule
-    \path{programs/q3_decision_model.py} & 固定策略期望递推、遗传算法、全枚举与 Monte Carlo 复核 \\
-    \path{code/problem3_figures.py} & GA 收敛、利润分布、前 10 与敏感性 Figure Pack \\
-    \path{code/problem3_schematic.py} & 生产结构机制图的 PDF/SVG 渲染 \\
-    \path{programs/results/q3_summary.txt} & 最优策略、期望成本与利润、GA 命中率、Monte Carlo 汇总 \\
-    \path{programs/results/q3_top10_strategies.csv} & 全枚举排名前 10 的策略 \\
-    \path{programs/results/q3_exact_all_strategies.csv} & 全部 $65536$ 个策略的精确评价 \\
-    \path{figures/q3/data/q3_ga_history.csv} & 20 次 GA 独立运行的逐代最优利润 \\
-    \path{figures/q3/data/q3_sensitivity.csv} & 三类参数扰动的 GA 搜索结果 \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-下列程序段分别给出固定策略期望成本求解与遗传算法主循环的核心实现；完整程序及全部结果随支撑材料提交。
 
 \lstinputlisting[
   language=Python,
@@ -113,8 +57,14 @@
 
 \lstinputlisting[
   language=Python,
-  firstline=448,
-  lastline=511,
-  caption={问题三的遗传算法主循环},
-  label={lst:q3-ga}
-]{../programs/q3_decision_model.py}
+  firstline=112,
+  lastline=140,
+  caption={问题四的 Beta 后验构造},
+  label={lst:q4-posterior}
+]{../programs/q4_bayesian_model.py}
+
+\subsection{测试与数值精度检验}
+
+问题一单元测试覆盖概率归一化、尾概率端点、三态分类、十进制边界向下取整、全检退化及有限总体收敛；问题二测试覆盖信念归一化、转移概率闭合、收敛、Bellman 残差与固定决策基准比较；问题三由全枚举与遗传算法一致性（20/20）、三个策略各 20000 次 Monte Carlo 复核及五类参数 15 个全枚举敏感性点检验；问题四测试覆盖 Beta 后验矩闭式解、样本量可表示性与并列最优跟踪，并补充先验与情景数稳定性实验。以上程序级检查仅作支撑，正文结论以模型级验证为准。
+
+问题二信念概率保留位数检验：相对保留 7 位的结果，保留 4 位时最大成本差 $7.512387\times10^{-5}$ 元、保留 6 位时 $3.226610\times10^{-6}$ 元，正文采用 6 位。问题三 Monte Carlo 复核中，最优、近优与回流较多三个策略的解析期望成本均位于各自 $95\%$ 置信区间内（详见 \path{q3_mc_stats.json}）。问题四情景数由 1000 增至 20000 时，问题三最优策略不变、期望利润稳定在 $55.03$ 元附近；Jeffreys 先验下除问题二情形 5 外策略结论与均匀先验一致。

@@ -73,6 +73,10 @@ python code/problem2_figures.py
 
 ```powershell
 python programs/q3_decision_model.py
+python code/problem3_figures.py
+python code/problem3_schematic.py
+python code/problem3_sensitivity.py
+python code/problem3_mc_check.py
 ```
 
 程序输出：
@@ -81,8 +85,30 @@ python programs/q3_decision_model.py
 - `programs/results/q3_ga_runs.csv`
 - `programs/results/q3_top10_strategies.csv`
 - `programs/results/q3_exact_all_strategies.csv`
+- `programs/results/q3_mc_stats.json`
+- `figures/q3/`：6 幅正式图（结构、失效循环、利润分布、前 10、GA 收敛、敏感性）与源数据
 
 问题三模型说明见 `docs/q3_model_handoff.md`，公式见 `docs/q3_formulas.tex`。
+
+## 问题四：抽样不确定性下的重决策
+
+运行问题四 Beta 后验情景重决策（七变量固定策略类 + 16 位策略类）与收敛图：
+
+```powershell
+python programs/q4_bayesian_model.py --scenarios 10000
+python code/problem4_figures.py
+```
+
+先验敏感性与情景数稳定性实验（输出到临时目录，不覆盖正式结果）：
+
+```powershell
+python programs/q4_bayesian_model.py --scenarios 10000 --sample-sizes 40 --prior jeffreys --output-dir tmp/q4_experiments/jeffreys_n40
+python programs/q4_bayesian_model.py --scenarios 1000 --sample-sizes 40 --output-dir tmp/q4_experiments/S1000
+python programs/q4_bayesian_model.py --scenarios 5000 --sample-sizes 40 --output-dir tmp/q4_experiments/S5000
+python programs/q4_bayesian_model.py --scenarios 20000 --sample-sizes 40 --output-dir tmp/q4_experiments/S20000
+```
+
+问题四结果文件位于 `programs/results/q4_*.csv` 与 `q4_summary.json`；抽样样本量 `n` 为证据强度参数，`n=40` 仅为代表性小样本情景。
 
 ## LaTeX 论文环境
 
@@ -110,12 +136,13 @@ VS Code 中安装推荐的 LaTeX Workshop 扩展后，保存 `.tex` 会自动触
 - `paper/sections/2_analysis.tex`：问题分析与各问关系。
 - `paper/sections/3_assumptions.tex`：模型假设及适用范围。
 - `paper/sections/4_symbols.tex`：符号、类型和单位。
-- `paper/sections/5_problem1.tex`：问题一完整闭环。
-- `paper/sections/6_problem2.tex`：问题二联合信念状态、Bellman 方程、结果与验证。
-- `paper/sections/8_sensitivity.tex`：问题一敏感性与有限总体检验。
+- `paper/sections/5_problem1.tex`：模型建立与求解入口；5.1 问题一完整闭环（含敏感性）。
+- `paper/sections/6_problem2.tex`：5.2 问题二联合信念状态、Bellman 方程、结果与验证。
+- `paper/sections/7_problem3.tex`：5.3 问题三多工序期望递推、GA、结果与验证。
+- `paper/sections/8_problem4.tex`：5.4 问题四 Beta 后验情景重决策、结果与验证。
 - `paper/sections/9_evaluation.tex`：模型评价、改进与推广。
 - `paper/sections/A_code.tex`：复现说明和程序附录。
 
-逐问完成状态、结果来源、假设、图表、风险及运行版本统一记录在 `reports/PAPER_WRITING_STATE.md`。问题一至问题三已形成模型、结果与论文章节，问题四尚未开始；因此当前文件属于工作稿，不应作为全题终稿提交。
+逐问完成状态、结果来源、假设、图表、风险及运行版本统一记录在 `reports/PAPER_WRITING_STATE.md`。四问均已形成模型、结果与论文章节；由于实际抽样样本量仍需企业确认，当前文件属于工作稿，不应作为全题终稿提交。
 
 `format2024.doc` 中的承诺书和编号专用页属于提交表单，不放入电子论文 PDF。

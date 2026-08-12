@@ -1,92 +1,37 @@
 % !TeX root = ../main.tex
 \section{符号说明}
 
-\subsection{问题一主要符号}
+表~\ref{tab:core-symbols}列出全文高频使用的核心符号，局部中间量在公式首次出现处定义。
 
 \begin{table}[H]
   \centering
-  \caption{问题一的抽样参数与观测量}
-  \label{tab:q1-symbols-basic}
-  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.13\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
+  \caption{核心符号说明}
+  \label{tab:core-symbols}
+  \small
+  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.11\textwidth}}
     \toprule
-    符号 & 含义 & 类型或取值域 & 单位 \\
+    符号 & 含义 & 类型或取值域 & 适用问题 \\
     \midrule
-    $p$ & 批次的真实次品率 & $[0,1]$ & --- \\
-    $p_0$ & 供应商声称的标称次品率，本题取 $0.10$ & $[0,1]$ & --- \\
-    $N$ & 有限批次中的零配件总数 & 正整数 & 件 \\
-    $n$ & 观察数据前确定的抽样检测数 & $1\le n\le N$ & 件 \\
-    $X,x$ & 样本次品数随机变量及其观测值 & $\{0,1,\ldots,n\}$ & 件 \\
-    $\gamma_R,\gamma_A$ & 拒收信度与接收信度 & $(0,1)$ & --- \\
-    $\alpha_R,\alpha_A$ & 两个单侧检验的显著性水平 & $(0,1)$ & --- \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-\begin{table}[H]
-  \centering
-  \caption{问题一的判定边界与样本量符号}
-  \label{tab:q1-symbols-decision}
-  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.16\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
-    \toprule
-    符号 & 含义 & 类型或取值域 & 单位 \\
-    \midrule
-    $a_n,r_n$ & 二项模型的接收上界与拒收下界 & 整数临界值 & 件 \\
-    $D$ & 有限总体中的实际次品数 & $\{0,1,\ldots,N\}$ & 件 \\
-    $D_0,D_1$ & 最大可接受与最小不可接受次品数 & 相邻非负整数 & 件 \\
-    $a_{n,N},r_{n,N}$ & 超几何模型的接收上界与拒收下界 & 整数临界值 & 件 \\
-    $n_A,n_R$ & 首次存在接收域与拒收域的样本量 & 正整数 & 件 \\
-    $n_*$ & 首次同时存在互不重叠两类判定域的样本量 & 正整数 & 件 \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-\subsection{问题二主要符号}
-
-\begin{table}[H]
-  \centering
-  \caption{问题二的决策变量、概率与成本符号}
-  \label{tab:q2-symbols}
-  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.16\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
-    \toprule
-    符号 & 含义 & 类型或取值域 & 单位 \\
-    \midrule
-    $\omega_i$ & 当前持有的零配件 $i$ 的真实质量状态 & $\{N,G,B\}$ & --- \\
-    $b(\omega_1,\omega_2)$ & 给定已有信息后的联合信念概率 & $[0,1]$ & --- \\
-    $a,\mathcal A(b)$ & 当前动作与信念状态下的可行动作集 & 离散集合 & --- \\
-    $\pi(b)$ & 信念状态到动作的策略映射 & $\pi(b)\in\mathcal A(b)$ & --- \\
-    $p_i,p_f$ & 零配件 $i$ 与装配过程的次品率 & $[0,1]$ & --- \\
-    $c_i,t_i$ & 零配件 $i$ 的采购成本与检测成本 & 非负实数 & 元/件 \\
-    $c_a,t_f,d$ & 装配、成品检测与拆解成本 & 非负实数 & 元/件 \\
-    $S,L$ & 成品售价与不合格品调换损失 & 非负实数 & 元/件 \\
-    $V(b),Q(b,a)$ & 状态价值与状态--动作价值 & 非负实数 & 元/件 \\
-    $\Pi$ & 交付一件合格成品的期望利润 & 实数 & 元/件 \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
-
-\subsection{问题三主要符号}
-
-\begin{table}[H]
-  \centering
-  \caption{问题三的决策向量、状态与期望递推符号}
-  \label{tab:q3-symbols}
-  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.15\textwidth}X>{\centering\arraybackslash}p{0.25\textwidth}>{\centering\arraybackslash}p{0.11\textwidth}}
-    \toprule
-    符号 & 含义 & 类型或取值域 & 单位 \\
-    \midrule
-    $X$ & 16 位策略向量 $(x_1,\ldots,x_{16})$ & $\{0,1\}^{16}$ & --- \\
-    $x_1$--$x_8$ & 零配件 1--8 是否检测 & $\{0,1\}$ & --- \\
-    $x_9$--$x_{11}$ & 半成品 1--3 是否检测 & $\{0,1\}$ & --- \\
-    $x_{12}$--$x_{14}$ & 不合格半成品 1--3 是否拆解 & $\{0,1\}$ & --- \\
-    $x_{15},x_{16}$ & 成品是否检测、不合格成品是否拆解 & $\{0,1\}$ & --- \\
-    $s$ & 零配件或半成品的质量状态 & $\{N,KG,UG,UB\}$ & --- \\
-    $S,S_0$ & 系统状态向量与初始状态 & 11 元组 & --- \\
-    $V_X,C_X$ & 固定策略下从状态 $S$ 出发的期望成本与一步成本 & 非负实数 & 元/件 \\
-    $P_X(S'\!\mid\!S)$ & 固定策略下状态转移概率 & $[0,1]$ & --- \\
-    $E[\Pi(X)]$ & 固定策略 $X$ 的期望利润 & 实数 & 元/件 \\
-    $R,L$ & 市场售价与不合格成品调换损失 & 非负实数 & 元/件 \\
-    $p_i,c_i,t_i$ & 零配件 $i$ 的次品率、购买单价与检测成本 & 非负实数 & 元/件 \\
-    $p_j,a_j,T_j,D_j$ & 半成品 $j$ 的次品率、装配成本、检测成本与拆解费用 & 非负实数 & 元/件 \\
+    $p_0$ & 供应商声称的标称次品率，本题取 $0.10$ & $[0,1]$ & 一 \\
+    $n,X$ & 固定抽样数与样本次品数 & 非负整数 & 一 \\
+    $\gamma_R,\gamma_A$ & 拒收信度与接收信度 & $(0,1)$ & 一 \\
+    $\alpha_R,\alpha_A$ & 拒收与接收检验的显著性水平 & $(0,1)$ & 一 \\
+    $a_n,r_n$ & 接收上界与拒收下界 & 整数 & 一 \\
+    $n_*$ & 首次同时存在互不重叠两类判定域的样本量 & 正整数 & 一 \\
+    $D_0,D_1$ & 有限总体最大可接受与最小不可接受次品数 & 整数 & 一 \\
+    $\omega_i$ & 在手零配件 $i$ 的真实质量状态 & $\{N,G,B\}$ & 二 \\
+    $b(\omega_1,\omega_2)$ & 给定已有信息后的联合信念 & $[0,1]$ & 二 \\
+    $\pi(b),V(b),Q(b,a)$ & 最优策略、状态价值与状态--动作价值 & 实数/元每件 & 二 \\
+    $c_i,t_i,c_a,t_f,d$ & 采购、检测、装配、成品检测与拆解成本 & 非负实数/元每件 & 二、三 \\
+    $S,L$ & 市场售价与不合格品调换损失 & 非负实数/元每件 & 二、三 \\
+    $X$ & 16 位检测/拆解决策向量 $(x_1,\ldots,x_{16})$ & $\{0,1\}^{16}$ & 三 \\
+    $s$ & 零配件或半成品的质量状态，取值 $\{N,KG,UG,UB\}$ & 四态集合 & 三 \\
+    $V_X,C_X,P_X$ & 固定策略下状态 $S$ 的期望成本、一步成本与转移概率 & 实数/概率 & 三 \\
+    $E[\Pi(X)]$ & 固定策略 $X$ 的期望利润 & 实数/元每件 & 三 \\
+    $\hat p,k,n$ & 某环节样本次品率、样本次品数与抽样样本量 & $[0,1]$,整数 & 四 \\
+    $\pi(p\mid k,n)$ & 次品率的 Beta 后验密度 & 密度函数 & 四 \\
+    $\theta^{(s)},\Pi(X,\theta)$ & 第 $s$ 组后验情景与策略 $X$ 在该参数下的期望利润 & 向量,实数/元每件 & 四 \\
+    $\bar\Pi,\sigma,q_{0.05}$ & 后验期望利润、利润标准差与 $5\%$ 分位数 & 实数/元每件 & 四 \\
     \bottomrule
   \end{tabularx}
 \end{table}
