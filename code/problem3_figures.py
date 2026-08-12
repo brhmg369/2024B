@@ -165,7 +165,7 @@ def plot_ga_convergence(history_rows: list[dict]) -> None:
     )
     axis.set_xlabel("进化代数")
     axis.set_ylabel("当前最优期望利润（元）")
-    axis.set_xlim(-2, 205)
+    axis.set_xlim(-1, 30)
     axis.legend(loc="lower right", ncol=1)
     axis.margins(y=0.08)
     save_figure(figure, "fig_q3_ga_convergence")
@@ -182,7 +182,7 @@ def plot_profit_distribution(exact_rows: list[dict]) -> None:
     figure, axis = plt.subplots(figsize=(6.4, 4.0))
     lo = float(np.floor(profits.min() / 20.0) * 20.0)
     hi = float(np.ceil(profits.max() / 5.0) * 5.0)
-    bins = np.linspace(lo, hi, 121)
+    bins = np.linspace(lo, hi, 41)
     axis.hist(
         profits,
         bins=bins,
@@ -192,6 +192,7 @@ def plot_profit_distribution(exact_rows: list[dict]) -> None:
         linewidth=0.3,
         label="可行策略",
     )
+    axis.axvline(0.0, color=DARK_GRAY, linestyle=":", linewidth=1.1, label="盈亏平衡 0 元")
     axis.axvline(
         OPTIMAL_PROFIT,
         color=RED,
@@ -222,13 +223,20 @@ def plot_top10(top10: list[dict]) -> None:
     figure, axis = plt.subplots(figsize=(6.4, 4.0))
     ranks = list(range(1, 11))
     profits = [row["expected_profit"] for row in top10]
-    colours = [MAIN_BLUE if rank == 1 else LIGHT_GRAY for rank in ranks]
-    bars = axis.barh(ranks, profits, color=colours, height=0.62)
-    for bar, row in zip(bars, top10):
-        code = row["strategy"]
+    x0 = 55.5
+    for rank, row in zip(ranks, top10):
+        colour = MAIN_BLUE if rank == 1 else LIGHT_GRAY
+        axis.hlines(rank, x0, row["expected_profit"], color=colour, linewidth=1.6)
+        axis.plot(
+            row["expected_profit"],
+            rank,
+            marker="o",
+            markersize=5.5,
+            color=MAIN_BLUE if rank == 1 else DARK_GRAY,
+        )
         axis.text(
-            bar.get_width() + 0.25,
-            bar.get_y() + bar.get_height() / 2,
+            row["expected_profit"] + 0.04,
+            rank,
             f"{row['expected_profit']:.4f}",
             va="center",
             ha="left",
@@ -236,12 +244,12 @@ def plot_top10(top10: list[dict]) -> None:
             color=DARK_GRAY,
         )
         axis.text(
-            -238.0,
-            bar.get_y() + bar.get_height() / 2,
-            code,
+            x0 - 0.42,
+            rank,
+            row["strategy"],
             va="center",
             ha="left",
-            fontsize=7.5,
+            fontsize=7,
             color=DARK_GRAY,
         )
     axis.set_yticks(ranks)
@@ -249,89 +257,27 @@ def plot_top10(top10: list[dict]) -> None:
     axis.invert_yaxis()
     axis.set_xlabel("期望利润（元）")
     axis.set_ylabel("排名")
-    axis.set_xlim(-240, 64)
+    axis.set_xlim(55.0, 61.8)
+    axis.set_ylim(0.5, 10.5)
     axis.axvline(OPTIMAL_PROFIT, color=RED, linestyle="--", linewidth=1.0)
     axis.text(
         OPTIMAL_PROFIT + 0.2,
-        9.2,
-        "全枚举最优",
+        10.2,
+        "固定策略空间最优",
         fontsize=8,
         color=RED,
         rotation=90,
-        va="bottom",
+        va="top",
     )
     save_figure(figure, "fig_q3_top10")
     plt.close(figure)
 
 
-def run_sensitivity() -> list[dict]:
-    rows: list[dict] = []
-    factor_specs = (
-        ("final_defect", "成品次品率"),
-        ("exchange_loss", "调换损失"),
-        ("disassembly_cost", "拆解成本"),
-    )
-    for factor_key, factor_label in factor_specs:
-        for level in SENSITIVITY_FACTORS:
-            if level == 1.00:
-                rows.append(
-                    {
-                        "factor": factor_key,
-                        "factor_label": factor_label,
-                        "level": level,
-                        "strategy": OPTIMAL_STRATEGY,
-                        "expected_cost": OPTIMAL_COST,
-                        "expected_profit": OPTIMAL_PROFIT,
-                        "ga_hit_count": GA_RUNS,
-                        "baseline_strategy_profit": OPTIMAL_PROFIT,
-                    }
-                )
-                continue
-            if factor_key == "final_defect":
-                params = replace(q3.TABLE2, final_defect=0.10 * level)
-            elif factor_key == "exchange_loss":
-                params = replace(q3.TABLE2, exchange_loss=40.0 * level)
-            else:
-                params = replace(
-                    q3.TABLE2,
-                    semi_disassemble=tuple(6.0 * level for _ in range(3)),
-                    final_disassemble=10.0 * level,
-                )
-            # Re-run the same seeded GA search (20 independent runs) under the
-            # perturbed parameters; the baseline optimal strategy is also
-            # re-evaluated analytically for comparison.  Full re-enumeration is
-            # not repeated for every perturbed scenario.
-            ga_results = [
-                q3.run_ga(
-                    params=params,
-                    seed=2024 + run,
-                    generations=GENERATIONS,
-                )
-                for run in range(GA_RUNS)
-            ]
-            best = max(ga_results, key=lambda run: run["best_profit"])
-            baseline_eval = q3.evaluate_strategy(OPTIMAL_STRATEGY, params)
-            hit_count = sum(
-                1
-                for run in ga_results
-                if run["best_strategy"] == best["best_strategy"]
-                and abs(run["best_profit"] - best["best_profit"]) <= 1e-7
-            )
-            rows.append(
-                {
-                    "factor": factor_key,
-                    "factor_label": factor_label,
-                    "level": level,
-                    "strategy": q3.strategy_to_code(best["best_strategy"]),
-                    "expected_cost": round(best["best_cost"], 6),
-                    "expected_profit": round(best["best_profit"], 6),
-                    "ga_hit_count": hit_count,
-                    "baseline_strategy_profit": round(
-                        baseline_eval.expected_profit, 6
-                    ),
-                }
-            )
-    return rows
+def load_sensitivity() -> list[dict]:
+    import pandas as pd
+
+    data = pd.read_csv(DATA_DIR / "q3_sensitivity.csv")
+    return data.to_dict("records")
 
 
 def plot_sensitivity(sensitivity_rows: list[dict]) -> None:
@@ -341,11 +287,13 @@ def plot_sensitivity(sensitivity_rows: list[dict]) -> None:
     data = pd.DataFrame(sensitivity_rows)
     figure, axis = plt.subplots(figsize=(6.4, 4.0))
     style = {
-        "成品次品率": (MAIN_BLUE, "o", "次品率"),
-        "调换损失": (CONTRAST_ORANGE, "s", "调换损失"),
-        "拆解成本": (TEAL, "^", "拆解成本"),
+        "零件检测成本": (MAIN_BLUE, "o"),
+        "零件次品率": (CONTRAST_ORANGE, "s"),
+        "成品次品率": (TEAL, "^"),
+        "调换损失": (RED, "D"),
+        "拆解成本": (DARK_GRAY, "v"),
     }
-    for label, (colour, marker, _legend) in style.items():
+    for label, (colour, marker) in style.items():
         group = data[data["factor_label"] == label].sort_values("level")
         axis.plot(
             group["level"],
@@ -402,16 +350,13 @@ def main() -> None:
     plot_profit_distribution(exact_rows)
     plot_top10(top10)
 
-    sensitivity_rows = run_sensitivity()
-    write_csv(DATA_DIR / "q3_sensitivity.csv", sensitivity_rows)
+    sensitivity_rows = load_sensitivity()
     plot_sensitivity(sensitivity_rows)
 
     print("Question 3 Figure Pack written to figures/q3/")
     print(f"GA history rows: {len(history_rows)}")
     print(f"Exact rows: {len(exact_rows)}; feasible: {len(feasible_sorted)}")
-    print("Sensitivity:")
-    for row in sensitivity_rows:
-        print(row)
+    print(f"Sensitivity rows loaded: {len(sensitivity_rows)}")
 
 
 if __name__ == "__main__":

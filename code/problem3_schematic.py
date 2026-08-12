@@ -23,9 +23,12 @@ STYLE_PATH = PROJECT_ROOT / "figures" / "style" / "cumcm.mplstyle"
 PART_BLUE = "#56B4E9"
 SEMI_TEAL = "#009E73"
 FINAL_BLUE = "#0072B2"
+CONTRAST_ORANGE = "#E69F00"
 ARROW_GRAY = "#4D4D4D"
 DECISION_GRAY = "#4D4D4D"
 BORDER_GRAY = "#4D4D4D"
+RED = "#D55E00"
+LIGHT_GRAY = "#B8B8B8"
 
 
 def configure_plot_style() -> None:
@@ -82,6 +85,84 @@ def draw_arrow(axis, x1, y1, x2, y2, color=ARROW_GRAY, lw=1.2):
         ),
         zorder=3,
     )
+
+
+def draw_infeasible_loop(figure_dir: Path) -> None:
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch
+
+    configure_plot_style()
+    figure, axis = plt.subplots(figsize=(8.6, 4.6))
+    axis.set_xlim(0, 10)
+    axis.set_ylim(0, 5.2)
+    axis.axis("off")
+
+    def box(x, y, w, h, text, fill, edge=BORDER_GRAY, text_color="white", dashed=False):
+        box_patch = FancyBboxPatch(
+            (x - w / 2, y - h / 2),
+            w,
+            h,
+            boxstyle="round,pad=0.02,rounding_size=0.06",
+            linewidth=0.9,
+            edgecolor=edge,
+            facecolor=fill,
+            linestyle=(0, (3, 2)) if dashed else "solid",
+        )
+        axis.add_patch(box_patch)
+        axis.text(
+            x,
+            y,
+            text,
+            ha="center",
+            va="center",
+            fontsize=8,
+            color=text_color,
+            zorder=5,
+        )
+
+    # Main loop: assemble -> defective -> disassemble -> defective part back -> assemble
+    box(2.1, 4.0, 3.0, 0.72, "装配半成品/成品", PART_BLUE)
+    box(7.3, 4.0, 3.2, 0.72, "检测：不合格", CONTRAST_ORANGE)
+    box(7.3, 1.4, 3.2, 0.72, "拆解，缺陷件回流", SEMI_TEAL)
+    box(2.1, 1.4, 3.0, 0.72, "回流件不检测，再次装配", RED)
+
+    draw_arrow(axis, 3.6, 4.0, 5.7, 4.0, color=ARROW_GRAY)
+    axis.text(4.65, 4.22, "必为不合格（存在缺陷件）", ha="center", fontsize=7.5, color=DECISION_GRAY)
+    draw_arrow(axis, 7.3, 3.64, 7.3, 1.76, color=ARROW_GRAY)
+    draw_arrow(axis, 5.7, 1.4, 3.6, 1.4, color=RED, lw=1.4)
+    axis.text(4.65, 1.2, "缺陷状态不变，形成闭环", ha="center", fontsize=7.5, color=RED)
+    draw_arrow(axis, 2.1, 3.64, 2.1, 1.76, color=RED, lw=1.4)
+
+    # Unreachable delivery state
+    box(8.0, 2.7, 2.6, 0.66, "合格交付状态（不可达）", LIGHT_GRAY, text_color="#666666", dashed=True)
+    axis.text(
+        8.0,
+        3.25,
+        "无转移路径到达",
+        ha="center",
+        fontsize=7.5,
+        color=DECISION_GRAY,
+    )
+
+    axis.text(
+        0.35,
+        5.0,
+        "该策略下缺陷件在拆解后保留真实不合格状态且始终不被检测，"
+        "反复进入装配，形成不含交付状态的闭合状态类。",
+        ha="left",
+        va="top",
+        fontsize=8,
+        color=DECISION_GRAY,
+    )
+
+    figure.savefig(
+        figure_dir / "fig_q3_infeasible_loop.pdf", format="pdf", bbox_inches="tight"
+    )
+    figure.savefig(
+        figure_dir / "fig_q3_infeasible_loop.svg", format="svg", bbox_inches="tight"
+    )
+    plt.close(figure)
+    print("fig_q3_infeasible_loop.pdf/.svg written to figures/q3/")
 
 
 def main() -> None:
@@ -159,6 +240,7 @@ def main() -> None:
     figure.savefig(FIGURE_DIR / "fig_q3_structure.svg", format="svg", bbox_inches="tight")
     plt.close(figure)
     print("fig_q3_structure.pdf/.svg written to figures/q3/")
+    draw_infeasible_loop(FIGURE_DIR)
 
 
 if __name__ == "__main__":

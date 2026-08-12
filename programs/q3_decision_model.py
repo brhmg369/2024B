@@ -18,6 +18,7 @@ import csv
 import math
 import random
 import time
+import warnings
 
 import numpy as np
 
@@ -374,17 +375,49 @@ def evaluate_strategy(
         states = discover_states(bits, params)
         index = {state: i for i, state in enumerate(states)}
         n = len(states)
-        matrix = np.eye(n, dtype=float)
         rhs = np.zeros(n, dtype=float)
+        try:
+            from scipy.sparse import csr_matrix
+            from scipy.sparse.linalg import spsolve
+
+            sparse_available = True
+        except Exception:
+            sparse_available = False
+
+        row_indices: list[int] = []
+        col_indices: list[int] = []
+        data_values: list[float] = []
 
         for state in states:
             row = index[state]
             step = policy_step(state, bits, params)
             rhs[row] = step.cost
+            row_indices.append(row)
+            col_indices.append(row)
+            data_values.append(1.0)
             for prob, next_state in step.transitions:
-                matrix[row, index[next_state]] -= prob
+                row_indices.append(row)
+                col_indices.append(index[next_state])
+                data_values.append(-prob)
 
-        values = np.linalg.solve(matrix, rhs)
+        if sparse_available:
+            matrix = csr_matrix(
+                (data_values, (row_indices, col_indices)), shape=(n, n)
+            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                try:
+                    values = np.asarray(spsolve(matrix, rhs), dtype=float)
+                except Exception:
+                    raise np.linalg.LinAlgError(
+                        "singular Markov reward equations"
+                    ) from None
+        else:
+            matrix = np.zeros((n, n), dtype=float)
+            for row, col, value in zip(row_indices, col_indices, data_values):
+                matrix[row, col] += value
+            values = np.linalg.solve(matrix, rhs)
+
         cost = float(values[index[START_STATE]])
 
         if not math.isfinite(cost) or cost < -1e-7 or cost > INF_COST / 10:
@@ -651,11 +684,26 @@ def monte_carlo_check(
             failures += 1
 
     mean_cost = math.inf if not costs else sum(costs) / len(costs)
+    if not costs:
+        cost_std = math.inf
+        se = math.inf
+        ci95_lower = math.inf
+        ci95_upper = math.inf
+    else:
+        cost_array = np.asarray(costs, dtype=float)
+        cost_std = float(np.std(cost_array, ddof=1))
+        se = cost_std / math.sqrt(len(cost_array))
+        ci95_lower = mean_cost - 1.96 * se
+        ci95_upper = mean_cost + 1.96 * se
     return {
         "trials": trials,
         "completed_trials": len(costs),
         "failed_trials": failures,
         "mc_expected_cost": mean_cost,
+        "mc_expected_cost_std": cost_std,
+        "mc_standard_error": se,
+        "mc_ci95_lower": ci95_lower,
+        "mc_ci95_upper": ci95_upper,
         "mc_expected_profit": params.sale_price - mean_cost if costs else -math.inf,
     }
 

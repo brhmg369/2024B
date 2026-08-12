@@ -1,0 +1,45 @@
+{
+  "trials": 20000,
+  "seed": 777,
+  "strategies": [
+    {
+      "strategy_label": "optimal",
+      "strategy": "1111111111111101",
+      "analytic_expected_cost": 139.777778,
+      "mc_mean_cost": 139.61935,
+      "mc_cost_std": 24.887399,
+      "mc_standard_error": 0.17598,
+      "mc_ci95_lower": 139.274428,
+      "mc_ci95_upper": 139.964272,
+      "completed_trials": 20000,
+      "failed_trials": 0,
+      "analytic_in_ci": 1
+    },
+    {
+      "strategy_label": "near_optimal",
+      "strategy": "1111111111111001",
+      "analytic_expected_cost": 141.950617,
+      "mc_mean_cost": 141.8286,
+      "mc_cost_std": 27.872339,
+      "mc_standard_error": 0.197087,
+      "mc_ci95_lower": 141.442309,
+      "mc_ci95_upper": 142.214891,
+      "completed_trials": 20000,
+      "failed_trials": 0,
+      "analytic_in_ci": 1
+    },
+    {
+      "strategy_label": "recycle_heavy",
+      "strategy": "1111111111101101",
+      "analytic_expected_cost": 142.320988,
+      "mc_mean_cost": 142.18115,
+      "mc_cost_std": 28.520889,
+      "mc_standard_error": 0.201673,
+      "mc_ci95_lower": 141.785871,
+      "mc_ci95_upper": 142.576429,
+      "completed_trials": 20000,
+      "failed_trials": 0,
+      "analytic_in_ci": 1
+    }
+  ]
+}

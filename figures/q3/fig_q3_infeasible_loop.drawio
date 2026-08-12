@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="q3-infeasible-loop" name="Page-1">
+    <mxGraphModel dx="1000" dy="560" grid="1" gridSize="10" guides="1"
+      tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1"
+      pageWidth="1000" pageHeight="560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="note" value="该策略下缺陷件在拆解后保留真实不合格状态且始终不被检测，反复进入装配，形成不含交付状态的闭合状态类。"
+          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#4D4D4D;"
+          vertex="1" parent="1">
+          <mxGeometry x="30" y="15" width="820" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="装配半成品/成品" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="120" y="100" width="220" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="检测：不合格" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E69F00;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="610" y="100" width="220" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" value="拆解，缺陷件回流" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#009E73;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="610" y="360" width="220" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" value="回流件不检测，再次装配" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D55E00;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="120" y="360" width="220" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="bt" value="合格交付状态（不可达）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B8B8B8;strokeColor=#4D4D4D;fontColor=#666666;fontSize=12;dashed=1;"
+          vertex="1" parent="1">
+          <mxGeometry x="700" y="220" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+          edge="1" parent="1" source="b1" target="b2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="b2" target="b3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D55E00;strokeWidth=2;exitX=1;exitY=0.5;entryX=0;entryY=0.5;"
+          edge="1" parent="1" source="b3" target="b4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D55E00;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="b4" target="b1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="t1" value="无转移路径到达" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontColor=#4D4D4D;"
+          vertex="1" parent="1">
+          <mxGeometry x="690" y="180" width="220" height="22" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

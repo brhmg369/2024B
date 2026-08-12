@@ -35,9 +35,13 @@ from programs import q3_decision_model as q3
 
 SCENARIOS = 5000
 BASE_SEED = 4024
-Q2_STRATEGY_BITS = 4
+Q2_STRATEGY_BITS = 7
 Q3_STRATEGY_BITS = 16
 NOMINAL_RATES = (0.05, 0.10, 0.20)
+PRIORS = {
+    "uniform": (1.0, 1.0),
+    "jeffreys": (0.5, 0.5),
+}
 DEFAULT_SAMPLE_SIZES = (40, 100, 200, 1000, 10000)
 CRITICAL_SEARCH_GRID = (
     40,
@@ -70,8 +74,8 @@ class PosteriorSpec:
     nominal_rate: float
     n: int
     k: int
-    alpha: int
-    beta: int
+    alpha: float
+    beta: float
 
 
 @dataclass(frozen=True)
@@ -105,12 +109,13 @@ def iter_bits(width: int):
     return product((0, 1), repeat=width)
 
 
-def posterior_spec(rate: float, n: int) -> PosteriorSpec:
+def posterior_spec(rate: float, n: int, prior: str = "uniform") -> PosteriorSpec:
     raw_k = n * rate
     k = int(round(raw_k))
     if abs(raw_k - k) > 1e-9:
         raise ValueError(f"n={n} cannot represent rate={rate:g} with integer k")
-    return PosteriorSpec(rate, n, k, k + 1, n - k + 1)
+    pseudo_a, pseudo_b = PRIORS[prior]
+    return PosteriorSpec(rate, n, k, k + pseudo_a, n - k + pseudo_b)
 
 
 def is_valid_common_sample_size(n: int) -> bool:
@@ -122,7 +127,7 @@ def is_valid_common_sample_size(n: int) -> bool:
     return True
 
 
-def beta_ppf(probability: float, alpha: int, beta: int) -> float:
+def beta_ppf(probability: float, alpha: float, beta: float) -> float:
     try:
         from scipy.stats import beta as beta_distribution
 
@@ -134,8 +139,8 @@ def beta_ppf(probability: float, alpha: int, beta: int) -> float:
         return min(1.0, max(0.0, mean + z * math.sqrt(variance) * (-1 if probability < 0.5 else 1)))
 
 
-def posterior_statistics(rate: float, n: int) -> dict:
-    spec = posterior_spec(rate, n)
+def posterior_statistics(rate: float, n: int, prior: str = "uniform") -> dict:
+    spec = posterior_spec(rate, n, prior)
     total = spec.alpha + spec.beta
     mean = spec.alpha / total
     variance = spec.alpha * spec.beta / (total * total * (total + 1))
@@ -154,11 +159,11 @@ def posterior_statistics(rate: float, n: int) -> dict:
     }
 
 
-def build_posterior_statistics_rows(sample_sizes: list[int]) -> list[dict]:
+def build_posterior_statistics_rows(sample_sizes: list[int], prior: str = "uniform") -> list[dict]:
     rows: list[dict] = []
     for n in sample_sizes:
         for rate in NOMINAL_RATES:
-            row = posterior_statistics(rate, n)
+            row = posterior_statistics(rate, n, prior)
             rows.append(
                 {
                     "n": row["n"],
@@ -175,8 +180,14 @@ def build_posterior_statistics_rows(sample_sizes: list[int]) -> list[dict]:
     return rows
 
 
-def sample_beta(rate: float, n: int, size: int, rng: np.random.Generator) -> np.ndarray:
-    spec = posterior_spec(rate, n)
+def sample_beta(
+    rate: float,
+    n: int,
+    size: int,
+    rng: np.random.Generator,
+    prior: str = "uniform",
+) -> np.ndarray:
+    spec = posterior_spec(rate, n, prior)
     return rng.beta(spec.alpha, spec.beta, size=size)
 
 
@@ -229,13 +240,208 @@ def q2_case_scenarios(
     n: int,
     size: int,
     seed: int,
+    prior: str = "uniform",
 ) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed + params.case * 97)
     return {
-        "p1": sample_beta(params.p1, n, size, rng),
-        "p2": sample_beta(params.p2, n, size, rng),
-        "pf": sample_beta(params.pf, n, size, rng),
+        "p1": sample_beta(params.p1, n, size, rng, prior),
+        "p2": sample_beta(params.p2, n, size, rng, prior),
+        "pf": sample_beta(params.pf, n, size, rng, prior),
     }
+
+
+Q2_STATUS_NONE = "N"
+Q2_STATUS_KNOWN_GOOD = "KG"
+Q2_STATUS_UNKNOWN_GOOD = "UG"
+Q2_STATUS_UNKNOWN_BAD = "UB"
+Q2_PHASE_INITIAL = 0
+Q2_PHASE_RECOVERY = 1
+
+
+def _q2_part_params(params: q2.CaseParams, part: int) -> tuple[float, float, float]:
+    if part == 0:
+        return params.p1, params.c1, params.t1
+    return params.p2, params.c2, params.t2
+
+
+def _q2_next_recovered(actual_good: bool, known_good: bool) -> str:
+    if actual_good and known_good:
+        return Q2_STATUS_KNOWN_GOOD
+    if actual_good:
+        return Q2_STATUS_UNKNOWN_GOOD
+    return Q2_STATUS_UNKNOWN_BAD
+
+
+def _q2_seven_part_options(
+    strategy: tuple[int, ...],
+    params: q2.CaseParams,
+    part: int,
+    status: str,
+    p1: np.ndarray,
+    p2: np.ndarray,
+    pf: np.ndarray,
+):
+    """Options for a part entering assembly: list of (prob, cost, good, known)."""
+    p, c, t = _q2_part_params(params, part)
+    ones = np.ones_like(p1)
+    if status == Q2_STATUS_NONE:
+        if strategy[part]:
+            return [(ones, (c + t) / (1.0 - p), True, True)]
+        return [
+            (1.0 - p, np.full_like(p1, c), True, False),
+            (p, np.full_like(p1, c), False, False),
+        ]
+    if status == Q2_STATUS_KNOWN_GOOD:
+        return [(ones, np.zeros_like(p1), True, True)]
+    inspect = strategy[4 + part]
+    if status == Q2_STATUS_UNKNOWN_GOOD:
+        if inspect:
+            return [(ones, np.full_like(p1, t), True, True)]
+        return [(ones, np.zeros_like(p1), True, False)]
+    # UNKNOWN_BAD
+    if inspect:
+        options = []
+        for prob, cost, good, known in _q2_seven_part_options(
+            strategy, params, part, Q2_STATUS_NONE, p1, p2, pf
+        ):
+            options.append((prob, cost + t, good, known))
+        return options
+    return [(ones, np.zeros_like(p1), False, False)]
+
+
+def _q2_seven_state_terms(
+    strategy: tuple[int, ...],
+    params: q2.CaseParams,
+    state: tuple[str, str, int],
+    p1: np.ndarray,
+    p2: np.ndarray,
+    pf: np.ndarray,
+) -> tuple[np.ndarray, dict[tuple[str, str, int], np.ndarray]]:
+    status1, status2, phase = state
+    product_inspection = strategy[2] if phase == Q2_PHASE_INITIAL else strategy[6]
+    constant = np.zeros_like(p1)
+    transitions: dict[tuple[str, str, int], np.ndarray] = {}
+    ones = np.ones_like(p1)
+
+    for prob1, cost1, good1, known1 in _q2_seven_part_options(
+        strategy, params, 0, status1, p1, p2, pf
+    ):
+        for prob2, cost2, good2, known2 in _q2_seven_part_options(
+            strategy, params, 1, status2, p1, p2, pf
+        ):
+            base_prob = prob1 * prob2
+            base_cost = cost1 + cost2 + params.ca + product_inspection * params.tf
+            if good1 and good2:
+                quality_outcomes = [(1.0 - pf, True), (pf, False)]
+            else:
+                quality_outcomes = [(ones, False)]
+            for quality_prob, product_good in quality_outcomes:
+                prob = base_prob * quality_prob
+                constant = constant + prob * base_cost
+                if product_good:
+                    continue
+                extra = (
+                    np.zeros_like(p1)
+                    if product_inspection
+                    else np.full_like(p1, params.exchange_loss)
+                )
+                if strategy[3]:
+                    extra = extra + params.disassemble_cost
+                    next_state = (
+                        _q2_next_recovered(good1, known1),
+                        _q2_next_recovered(good2, known2),
+                        Q2_PHASE_RECOVERY,
+                    )
+                else:
+                    next_state = (Q2_STATUS_NONE, Q2_STATUS_NONE, Q2_PHASE_INITIAL)
+                constant = constant + prob * extra
+                transitions[next_state] = transitions.get(next_state, 0.0) + prob
+    return constant, transitions
+
+
+def _q2_seven_reachable_states(
+    strategy: tuple[int, ...],
+    params: q2.CaseParams,
+) -> list[tuple[str, str, int]]:
+    p1 = np.array([params.p1], dtype=float)
+    p2 = np.array([params.p2], dtype=float)
+    pf = np.array([params.pf], dtype=float)
+    start = (Q2_STATUS_NONE, Q2_STATUS_NONE, Q2_PHASE_INITIAL)
+    seen = {start}
+    ordered = [start]
+    cursor = 0
+    while cursor < len(ordered):
+        state = ordered[cursor]
+        cursor += 1
+        _, transitions = _q2_seven_state_terms(strategy, params, state, p1, p2, pf)
+        for next_state, prob in transitions.items():
+            if prob[0] <= 0 or next_state in seen:
+                continue
+            seen.add(next_state)
+            ordered.append(next_state)
+    return ordered
+
+
+def _q2_seven_scalar_cost(
+    strategy: tuple[int, ...],
+    params: q2.CaseParams,
+) -> float | None:
+    states = _q2_seven_reachable_states(strategy, params)
+    index = {state: i for i, state in enumerate(states)}
+    n = len(states)
+    p1 = np.array([params.p1], dtype=float)
+    p2 = np.array([params.p2], dtype=float)
+    pf = np.array([params.pf], dtype=float)
+    matrix = np.zeros((n, n), dtype=float)
+    rhs = np.zeros(n, dtype=float)
+    for i, state in enumerate(states):
+        matrix[i, i] = 1.0
+        constant, transitions = _q2_seven_state_terms(
+            strategy, params, state, p1, p2, pf
+        )
+        rhs[i] = float(constant[0])
+        for next_state, prob in transitions.items():
+            matrix[i, index[next_state]] -= float(prob[0])
+    try:
+        values = np.linalg.solve(matrix, rhs)
+    except np.linalg.LinAlgError:
+        return None
+    cost = float(values[index[(Q2_STATUS_NONE, Q2_STATUS_NONE, Q2_PHASE_INITIAL)]])
+    if not math.isfinite(cost) or cost < 0:
+        return None
+    return cost
+
+
+def _q2_seven_profit_vector(
+    strategy: tuple[int, ...],
+    params: q2.CaseParams,
+    scenarios: dict[str, np.ndarray],
+) -> np.ndarray | None:
+    p1 = scenarios["p1"]
+    p2 = scenarios["p2"]
+    pf = scenarios["pf"]
+    states = _q2_seven_reachable_states(strategy, params)
+    index = {state: i for i, state in enumerate(states)}
+    n = len(states)
+    size = len(p1)
+    matrix = np.zeros((size, n, n), dtype=float)
+    rhs = np.zeros((size, n, 1), dtype=float)
+    for i, state in enumerate(states):
+        matrix[:, i, i] = 1.0
+        constant, transitions = _q2_seven_state_terms(
+            strategy, params, state, p1, p2, pf
+        )
+        rhs[:, i, 0] = constant
+        for next_state, prob in transitions.items():
+            matrix[:, i, index[next_state]] -= prob
+    try:
+        values = np.linalg.solve(matrix, rhs)
+    except np.linalg.LinAlgError:
+        return None
+    cost = values[:, index[(Q2_STATUS_NONE, Q2_STATUS_NONE, Q2_PHASE_INITIAL)], 0]
+    if not np.all(np.isfinite(cost)):
+        return None
+    return params.sale - cost
 
 
 def q2_profit_scenarios(
@@ -244,43 +450,10 @@ def q2_profit_scenarios(
     scenarios: dict[str, np.ndarray],
 ) -> np.ndarray | None:
     if len(strategy) != Q2_STRATEGY_BITS:
-        raise ValueError("Q2 strategy must have 4 bits")
-
-    x1, x2, y, z = strategy
-    p1 = scenarios["p1"]
-    p2 = scenarios["p2"]
-    pf = scenarios["pf"]
-
-    part1_cost = (params.c1 + params.t1) / (1.0 - p1) if x1 else params.c1
-    part2_cost = (params.c2 + params.t2) / (1.0 - p2) if x2 else params.c2
-    q1 = np.ones_like(p1) if x1 else (1.0 - p1)
-    q2_good = np.ones_like(p2) if x2 else (1.0 - p2)
-
-    if z and (not x1 or not x2):
+        raise ValueError("Q2 strategy must have 7 bits")
+    if _q2_seven_scalar_cost(strategy, params) is None:
         return None
-
-    base = part1_cost + part2_cost
-    product_test_cost = y * params.tf
-    exchange_if_defect = 0.0 if y else params.exchange_loss
-
-    if z:
-        cycle_cost = (
-            params.ca
-            + product_test_cost
-            + pf * (exchange_if_defect + params.disassemble_cost)
-        ) / (1.0 - pf)
-        cost = base + cycle_cost
-    else:
-        success = q1 * q2_good * (1.0 - pf)
-        attempt_cost = (
-            base
-            + params.ca
-            + product_test_cost
-            + (1.0 - success) * exchange_if_defect
-        )
-        cost = attempt_cost / success
-
-    return params.sale - cost
+    return _q2_seven_profit_vector(strategy, params, scenarios)
 
 
 def q2_fixed_profit(
@@ -314,8 +487,9 @@ def evaluate_q2_case(
     n: int,
     size: int,
     seed: int,
+    prior: str = "uniform",
 ) -> tuple[list[dict], dict]:
-    scenarios = q2_case_scenarios(params, n, size, seed)
+    scenarios = q2_case_scenarios(params, n, size, seed, prior)
     rows: list[dict] = []
 
     for strategy in iter_bits(Q2_STRATEGY_BITS):
@@ -358,16 +532,21 @@ def evaluate_q2_case(
     return rows, best
 
 
-def q3_scenarios(n: int, size: int, seed: int) -> dict[str, np.ndarray]:
+def q3_scenarios(
+    n: int,
+    size: int,
+    seed: int,
+    prior: str = "uniform",
+) -> dict[str, np.ndarray]:
     rng = np.random.default_rng(seed + 3009)
     return {
         "parts": np.vstack(
-            [sample_beta(rate, n, size, rng) for rate in q3.TABLE2.part_defect]
+            [sample_beta(rate, n, size, rng, prior) for rate in q3.TABLE2.part_defect]
         ),
         "semis": np.vstack(
-            [sample_beta(rate, n, size, rng) for rate in q3.TABLE2.semi_defect]
+            [sample_beta(rate, n, size, rng, prior) for rate in q3.TABLE2.semi_defect]
         ),
-        "final": sample_beta(q3.TABLE2.final_defect, n, size, rng),
+        "final": sample_beta(q3.TABLE2.final_defect, n, size, rng, prior),
     }
 
 
@@ -729,22 +908,27 @@ def q3_run_ga(
 
 def decode_q2_strategy(code: str) -> dict[str, str]:
     bits = bits_from_code(code)
+    if len(bits) != Q2_STRATEGY_BITS:
+        raise ValueError("Q2 strategy must have 7 bits")
     labels = [
-        ("part_1_inspection", "inspect" if bits[0] else "no_inspection"),
-        ("part_2_inspection", "inspect" if bits[1] else "no_inspection"),
-        ("finished_product_inspection", "inspect" if bits[2] else "no_inspection"),
-        ("defective_finished_product", "disassemble" if bits[3] else "scrap"),
+        ("part_1_first_inspection", "inspect" if bits[0] else "no_inspection"),
+        ("part_2_first_inspection", "inspect" if bits[1] else "no_inspection"),
+        ("final_inspection", "inspect" if bits[2] else "no_inspection"),
+        ("defective_final_disassemble", "disassemble" if bits[3] else "scrap"),
+        ("part_1_recovered_inspection", "inspect" if bits[4] else "no_inspection"),
+        ("part_2_recovered_inspection", "inspect" if bits[5] else "no_inspection"),
+        ("reassembly_final_inspection", "inspect" if bits[6] else "no_inspection"),
     ]
     return dict(labels)
 
 
-def build_posterior_specs(n: int) -> list[dict]:
+def build_posterior_specs(n: int, prior: str = "uniform") -> list[dict]:
     return [
         {
             "nominal_rate": rate,
             "n": n,
-            "k": posterior_spec(rate, n).k,
-            "posterior": f"Beta({posterior_spec(rate, n).alpha},{posterior_spec(rate, n).beta})",
+            "k": posterior_spec(rate, n, prior).k,
+            "posterior": f"Beta({posterior_spec(rate, n, prior).alpha:g},{posterior_spec(rate, n, prior).beta:g})",
         }
         for rate in NOMINAL_RATES
     ]
@@ -821,6 +1005,7 @@ def solve_q4(
     mutation_rate: float,
     elite_size: int,
     output_dir: Path,
+    prior: str = "uniform",
 ) -> dict:
     started = time.perf_counter()
     main_n = sample_sizes[0]
@@ -832,13 +1017,15 @@ def solve_q4(
     q2_best_rows: list[dict] = []
     q2_sensitivity_rows: list[dict] = []
     q3_sensitivity_rows: list[dict] = []
-    posterior_rows = build_posterior_statistics_rows(sample_sizes)
+    posterior_rows = build_posterior_statistics_rows(sample_sizes, prior)
     q2_fixed_best = deterministic_q2_best_by_case()
     q3_fixed_best = deterministic_q3_best()
 
     for n in sample_sizes:
         for params in q2.CASES:
-            rows, best = evaluate_q2_case(params, n, scenarios_count, BASE_SEED + n)
+            rows, best = evaluate_q2_case(
+                params, n, scenarios_count, BASE_SEED + n, prior
+            )
             if n == main_n:
                 q2_all_rows.extend(rows)
                 q2_best_rows.append(best)
@@ -859,7 +1046,9 @@ def solve_q4(
                 }
             )
 
-    q3_main_scenarios = q3_scenarios(main_n, scenarios_count, BASE_SEED + main_n)
+    q3_main_scenarios = q3_scenarios(
+        main_n, scenarios_count, BASE_SEED + main_n, prior
+    )
     q3_main_cache = build_group_cache(q3_main_scenarios)
     q3_fixed_scenarios = {
         "parts": np.array(q3.TABLE2.part_defect, dtype=float).reshape(8, 1),
@@ -887,7 +1076,7 @@ def solve_q4(
             rows = q3_rows
             best = exact_best
         else:
-            scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n)
+            scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n, prior)
             group_cache = build_group_cache(scenarios)
             rows = q3_enumerate_bayes(
                 scenarios,
@@ -967,7 +1156,9 @@ def solve_q4(
     for n in critical_sample_sizes:
         if n not in {int(row["n"]) for row in q2_sensitivity_rows}:
             for params in q2.CASES:
-                _, best = evaluate_q2_case(params, n, scenarios_count, BASE_SEED + n)
+                _, best = evaluate_q2_case(
+                    params, n, scenarios_count, BASE_SEED + n, prior
+                )
                 q2_critical_rows.append(
                     {
                         "problem": "q2",
@@ -978,7 +1169,7 @@ def solve_q4(
                 )
 
         if n not in completed_q3_critical:
-            scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n)
+            scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n, prior)
             group_cache = build_group_cache(scenarios)
             rows = q3_enumerate_bayes(
                 scenarios,
@@ -1030,13 +1221,17 @@ def solve_q4(
 
     summary = {
         "method": "Beta posterior scenarios + analytical production expectation + GA + exact enumeration",
-        "posterior_assumption": "Table rates are independent sample defect rates with uniform prior; n=40 is the main modelling assumption.",
+        "posterior_assumption": (
+            f"Table rates are independent sample defect rates with {prior} prior; "
+            "n is the evidence-strength parameter and n=40 is the representative small-sample scenario."
+        ),
+        "prior": prior,
         "scenario_count": scenarios_count,
         "main_sample_size": main_n,
         "sample_sizes": sample_sizes,
-        "posterior_specs_n40": build_posterior_specs(main_n),
+        "posterior_specs_n40": build_posterior_specs(main_n, prior),
         "posterior_statistics": posterior_rows,
-        "q2_fixed16_note": "Q2 output enumerates the requested fixed 4-bit restricted strategies; the repository's formal Q2 model remains a state-dependent belief MDP.",
+        "q2_7bit_note": "Q2 output enumerates the 7-variable fixed-strategy class (x1,x2,y,z,r1,r2,yr) consistent with the Q2 fixed baseline; the repository's formal Q2 model remains a state-dependent belief MDP.",
         "q2_best": q2_best_rows,
         "q2_critical_sample_sizes": [
             row for row in critical_rows if row["problem"] == "q2"
@@ -1093,6 +1288,12 @@ def main() -> None:
     parser.add_argument("--crossover-rate", type=float, default=0.8)
     parser.add_argument("--mutation-rate", type=float, default=0.02)
     parser.add_argument("--elite-size", type=int, default=5)
+    parser.add_argument(
+        "--prior",
+        choices=sorted(PRIORS),
+        default="uniform",
+        help="Beta prior pseudo-counts: uniform Beta(1,1) or Jeffreys Beta(1/2,1/2)",
+    )
     parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args()
 
@@ -1108,6 +1309,7 @@ def main() -> None:
         mutation_rate=args.mutation_rate,
         elite_size=args.elite_size,
         output_dir=output_dir,
+        prior=args.prior,
     )
 
     summary = result["summary"]
