@@ -1,7 +1,7 @@
-﻿case,part1_mode,part2_mode,part1_mode_id,part2_mode_id,product_defect_prob_q,qL_minus_tf,inspect_product_by_rule,disassemble,feasible,expected_cost,expected_profit
-1,first_inspect,inspect_after_recovery,0,2,0.19,-1.86,0,1,1,37.077778,18.922222
-2,first_inspect,first_inspect,0,0,0.2,-1.8,0,1,1,44.0,12.0
-3,first_inspect,inspect_after_recovery,0,2,0.19,2.7,1,1,1,39.411111,16.588889
-4,first_inspect,first_inspect,0,0,0.2,4.0,1,1,1,41.25,14.75
-5,inspect_after_recovery,first_inspect,2,0,0.19,-0.1,0,1,1,40.55,15.45
-6,never_inspect,never_inspect,1,1,0.142625,-1.57375,0,0,1,34.32133,21.67867
+﻿case,x1,x2,y,z,r1,r2,yr,initial_product_defect_prob_q,qL_minus_tf,feasible,dominated_reinspection,infeasible_reason,expected_cost,expected_profit
+1,1,0,0,1,0,1,0,0.19,-1.86,1,0,,37.077778,18.922222
+2,1,1,0,1,0,0,0,0.2,-1.8,1,0,,44.0,12.0
+3,1,0,1,1,0,1,1,0.19,2.7,1,0,,39.411111,16.588889
+4,1,1,1,1,0,0,1,0.2,4.0,1,0,,41.25,14.75
+5,0,1,0,1,1,0,0,0.19,-0.1,1,0,,40.55,15.45
+6,0,0,0,0,0,0,0,0.142625,-1.57375,1,0,,34.32133,21.67867

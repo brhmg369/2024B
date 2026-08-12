@@ -2,19 +2,15 @@
 
 ## `q2_decision_model.py`
 
-Enumerates the compressed Question 2 decision set and computes expected cost and expected profit.
+Enumerates the rigorous Question 2 decision set and computes expected cost and expected profit.
 
 The program follows the handoff workflow:
 
-- enumerate three modes for each part:
-  - `first_inspect`: inspect before first assembly; do not inspect again after disassembly
-  - `never_inspect`: do not inspect before assembly or after disassembly
-  - `inspect_after_recovery`: do not inspect before assembly, inspect after disassembly
-- combine them into `3 x 3` part policies
-- compute the corresponding finished-product defect probability `q`
-- decide finished-product inspection using `t_f < qL`
-- enumerate disassembly `z = 0, 1`
-- compare final expected profits globally
+- enumerate seven binary decisions `(x1, x2, y, z, r1, r2, yr)`
+- track recovered parts as `known_good`, `unknown_good`, or `unknown_bad`
+- solve a linear expectation system for each policy
+- mark singular or infinite-loop policies as infeasible
+- compare feasible non-dominated policies by expected profit
 
 Run:
 
