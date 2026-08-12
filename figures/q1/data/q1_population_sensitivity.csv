@@ -1,0 +1,8 @@
+﻿model,population_size,acceptable_defectives,first_accept_sample_size,first_reject_sample_size,first_both_sample_size,accept_cutoff_at_first_both,reject_cutoff_at_first_both,binomial_first_both_sample_size,difference_from_binomial
+hypergeometric,25,2,13,2,13,0,3,22,-9
+hypergeometric,50,5,16,2,16,0,4,22,-6
+hypergeometric,100,10,18,2,18,0,5,22,-4
+hypergeometric,200,20,20,2,20,0,5,22,-2
+hypergeometric,500,50,21,2,21,0,5,22,-1
+hypergeometric,1000,100,22,2,22,0,6,22,0
+hypergeometric,5000,500,22,2,22,0,6,22,0

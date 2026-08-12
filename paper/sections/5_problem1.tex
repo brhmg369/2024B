@@ -1,0 +1,194 @@
+% !TeX root = ../main.tex
+\section{问题一：抽样检测方案的建立与求解}
+
+\subsection{任务、对象与模型边界}
+
+本问以一批零配件的真实次品率 $p$ 为待判断参数，以预先固定的抽样数 $n$ 和样本次品数 $X$ 为观测对象。输入包括标称次品率 $p_0=0.10$、拒收信度 $\gamma_R=0.95$、接收信度 $\gamma_A=0.90$，以及在有限总体分支中可能给出的批次总量 $N$；输出为最小可执行抽样数、接收上界、拒收下界和证据不足区域。
+
+题目未给出不可接受次品率、目标检验功效或检测成本函数，因此本文不另行构造传统功效样本量，而是在给定置信约束下寻找最早出现判定域的固定样本方案。题目也未给出实际 $N$，故二项模型用于正式数值结论，超几何模型只在已知 $N$ 时进行有限总体修正。
+
+\subsection{置信约束与三态判定}
+
+对拒收结论建立单侧假设
+\begin{equation}
+  H_{0R}:p\le p_0,\qquad H_{1R}:p>p_0,
+  \label{eq:q1-reject-hypothesis}
+\end{equation}
+并令拒收显著性水平为
+\[
+  \alpha_R=1-\gamma_R=0.05.
+\]
+对接收结论建立反向单侧假设
+\begin{equation}
+  H_{0A}:p\ge p_0,\qquad H_{1A}:p<p_0,
+  \label{eq:q1-accept-hypothesis}
+\end{equation}
+相应显著性水平为
+\[
+  \alpha_A=1-\gamma_A=0.10.
+\]
+
+两个检验分别控制错拒合格批和错收不合格批的概率。离散样本不一定能在给定显著性水平下支持任一方向的结论，因此保留中间的证据不足区域。对给定 $n$，若接收临界值为 $a_n$、拒收临界值为 $r_n$，则
+\begin{equation}
+  \operatorname{Decision}(x)=
+  \begin{cases}
+    \text{接收}, & x\le a_n,\\
+    \text{证据不足}, & a_n<x<r_n,\\
+    \text{拒收}, & x\ge r_n.
+  \end{cases}
+  \label{eq:q1-three-way-decision}
+\end{equation}
+其中 $a_n<r_n$，从而保证接收域与拒收域互不重叠。
+
+\subsection{二项分布主模型}
+
+在总体量未知或抽样比例较小时，将每件零配件视为一次独立伯努利试验。在边界 $p=p_0$ 上，样本次品数满足
+\begin{equation}
+  X\sim\operatorname{Bin}(n,p_0),\qquad
+  P(X=k)=\binom{n}{k}p_0^k(1-p_0)^{n-k}.
+  \label{eq:q1-binomial-pmf}
+\end{equation}
+
+式~\eqref{eq:q1-reject-hypothesis}中的右尾概率随 $p$ 增大，复合原假设的最不利点为 $p=p_0$。因此拒收临界值为
+\begin{equation}
+  r_n=\min\left\{x:
+  \sum_{k=x}^{n}\binom{n}{k}p_0^k(1-p_0)^{n-k}
+  \le \alpha_R\right\}.
+  \label{eq:q1-binomial-reject-cutoff}
+\end{equation}
+若观测到 $x\ge r_n$，则在题目规定的 $95\%$ 信度下拒收该批。
+
+式~\eqref{eq:q1-accept-hypothesis}中的左尾概率在 $p=p_0$ 处达到原假设范围内的最大值，故接收临界值为
+\begin{equation}
+  a_n=\max\left\{x:
+  \sum_{k=0}^{x}\binom{n}{k}p_0^k(1-p_0)^{n-k}
+  \le \alpha_A\right\}.
+  \label{eq:q1-binomial-accept-cutoff}
+\end{equation}
+若观测到 $x\le a_n$，则在题目规定的 $90\%$ 信度下接收该批。
+
+\subsection{超几何有限总体修正}
+
+当批次总量 $N$ 已知且采用无放回抽样时，抽取一个样品会改变剩余总体组成。令总体中的实际次品数为 $D$，则
+\begin{equation}
+  P(X=k\mid N,D,n)
+  =\frac{\binom{D}{k}\binom{N-D}{n-k}}{\binom{N}{n}}.
+  \label{eq:q1-hypergeometric-pmf}
+\end{equation}
+
+为了严格对应“总体次品率不超过标称值”，定义
+\begin{equation}
+  D_0=\lfloor Np_0\rfloor,\qquad D_1=D_0+1,
+  \label{eq:q1-finite-boundaries}
+\end{equation}
+其中 $D_0$ 是最大可接受次品数，$D_1$ 是最小不可接受次品数。拒收方向以 $D_0$ 控制错拒概率，接收方向以 $D_1$ 控制错收概率，得到
+\begin{align}
+  r_{n,N}
+  &=\min\{x:P(X\ge x\mid N,D_0,n)\le\alpha_R\},
+  \label{eq:q1-hyper-reject}\\
+  a_{n,N}
+  &=\max\{x:P(X\le x\mid N,D_1,n)\le\alpha_A\}.
+  \label{eq:q1-hyper-accept}
+\end{align}
+这两个边界与二项模型使用相同的三态判定结构，仅把独立抽样概率替换为无放回抽样概率。
+
+\subsection{最小样本量与完整判定模型}
+
+为区分“某个极端结果首次可以作出结论”和“同一方案同时可以接收或拒收”，定义
+\begin{equation}
+  n_R=\min\{n:r_n\text{ 存在}\},\qquad
+  n_A=\min\{n:a_n\text{ 存在}\},
+  \label{eq:q1-min-directional-n}
+\end{equation}
+以及主要采用的统一样本量
+\begin{equation}
+  n_*=\min\{n:a_n\text{ 与 }r_n\text{ 同时存在且 }a_n<r_n\}.
+  \label{eq:q1-min-unified-n}
+\end{equation}
+
+在拒收方向，最有利的极端结果为 $x=n$，其右尾概率为 $p_0^n$。由 $0.1^n\le0.05$ 得 $n_R=2$。这只表示抽取两件且两件均为次品时可以拒收，不代表该小样本方案对一般超标批次具有较高检验功效。
+
+在接收方向，最有利的结果为 $x=0$，其左尾概率为 $(1-p_0)^n$。由
+\[
+  0.9^n\le0.10,
+  \qquad
+  n\ge\frac{\ln0.10}{\ln0.90}=21.854\cdots,
+\]
+得到 $n_A=22$。当 $n=22$ 时拒收域也已存在，且两个判定域不重叠，故 $n_*=22$。三种口径见表~\ref{tab:q1-minimum-samples}。
+
+\begin{table}[H]
+  \centering
+  \caption{不同口径下的最小样本量}
+  \label{tab:q1-minimum-samples}
+  \begin{tabular}{p{0.27\textwidth}cp{0.43\textwidth}}
+    \toprule
+    口径 & 最小样本量 & 首次可触发的样本结果 \\
+    \midrule
+    首次存在拒收域 & $n_R=2$ & $x=2$ 时拒收 \\
+    首次存在接收域 & $n_A=22$ & $x=0$ 时接收 \\
+    首次同时存在两个判定域 & $n_*=22$ & $x=0$ 接收，$x\ge6$ 拒收 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+由此得到正式固定样本方案：随机抽取 $22$ 件并完成检测，判定规则为
+\begin{equation}
+  \operatorname{Decision}(x)=
+  \begin{cases}
+    \text{接收该批}, & x=0,\\
+    \text{证据不足}, & 1\le x\le5,\\
+    \text{拒收该批}, & x\ge6.
+  \end{cases}
+  \label{eq:q1-final-binomial-rule}
+\end{equation}
+
+\subsection{求解方法与参数设置}
+
+程序以 $p_0=0.10$、$\gamma_R=0.95$、$\gamma_A=0.90$ 为正式参数，在 $n=1,2,\ldots,200$ 上顺序搜索。对每个 $n$，先在对数域生成并归一化二项或超几何概率，再构造左尾和右尾累积概率；随后搜索最大的接收临界值与最小的拒收临界值，并检查临界点、相邻点及两个判定域是否重叠。该过程为确定性精确枚举，不使用随机数，也不存在随机算法停止条件。
+
+超几何分支额外检查 $1\le n\le N$ 及整数边界。全检情形 $n=N$ 下，模型应退化为 $x\le D_0$ 接收、$x\ge D_1$ 拒收，这一理论边界同时用于检验程序实现。
+
+\subsection{计算结果、验证与现实解释}
+
+表~\ref{tab:q1-boundary-check}给出 $n=22$ 时的临界尾概率及相邻点概率。接收临界点满足 $P(X\le0)<0.10$，增加一个次品后左尾概率立即超过 $0.10$；拒收临界点满足 $P(X\ge6)<0.05$，减少一个次品后右尾概率超过 $0.05$。因此 $a_{22}=0$ 是最大接收临界值，$r_{22}=6$ 是最小拒收临界值。
+
+\begin{table}[H]
+  \centering
+  \caption{$n=22$ 时二项模型的临界概率校核}
+  \label{tab:q1-boundary-check}
+  \begin{tabular}{p{0.38\textwidth}ccc}
+    \toprule
+    校核量 & 概率 & 约束 & 结论 \\
+    \midrule
+    $P(X\le0)$ & $0.0984770902$ & $\le0.10$ & 通过 \\
+    $P(X\le1)$ & $0.3391988663$ & $>0.10$ & 相邻点不接收 \\
+    $P(X\ge6)$ & $0.0182159811$ & $\le0.05$ & 通过 \\
+    $P(X\ge5)$ & $0.0621336713$ & $>0.05$ & 相邻点不拒收 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+图~\ref{fig:q1-decision-boundaries}用于检查样本量变化时两个临界值的相对位置。接收上界始终位于拒收下界之下，两条曲线之间为证据不足区。对 $n=1,2,\ldots,200$ 的枚举结果复核表明，所有临界点均满足相应尾概率约束，且两个判定域没有重叠。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.90\textwidth]{../../figures/q1/q1_decision_boundaries.pdf}
+  \caption{二项模型的接收与拒收临界值随样本量的变化}
+  \label{fig:q1-decision-boundaries}
+\end{figure}
+
+为验证有限总体分支，取灵敏度网格中的 $N=1000$，此时 $D_0=100$、$D_1=101$。计算得到 $n_*=22$、$a_{22,1000}=0$、$r_{22,1000}=6$，相应临界概率为
+\[
+  P_{D_1}(X\le0)=0.0935984699,
+  \qquad
+  P_{D_0}(X\ge6)=0.0170168477.
+\]
+相邻点概率分别为 $0.3304729576$ 和 $0.0600260183$，仍满足临界值极值性。该组数值只用于验证超几何计算性质，不作为题面给定总体量；实际 $N$ 一旦获得，应按式~\eqref{eq:q1-hyper-reject}和式~\eqref{eq:q1-hyper-accept}重新计算。
+
+程序的 11 项单元测试进一步覆盖概率归一化、尾概率端点、三态分类、十进制边界向下取整、全检退化及有限总体向二项模型收敛等性质。由此形成“解析边界—相邻点概率—极端情形—自动测试”的验证链。
+
+\subsection{适用边界与本问结论}
+
+式~\eqref{eq:q1-final-binomial-rule}是预先固定 $n=22$ 的一次性检验。若每增加一件样品就重复使用同一显著性水平，会因多次查看数据而放大总体误判概率；真正的序贯抽样还需给出备择次品率或功效要求，并采用带总体错误率控制的序贯检验。
+
+因此，在题目给定的 $10\%$ 标称次品率、$95\%$ 拒收信度和 $90\%$ 接收信度下，统一方案为抽取 $22$ 件：未发现次品时接收，发现不少于 $6$ 个次品时拒收，发现 $1$ 至 $5$ 个次品时保留为证据不足。该结论适用于总体量未知或抽样比例较小的固定样本场景；小批量无放回抽样应输入实际 $N$ 后采用超几何修正。该批次判断及其不确定区为后续生产决策提供质量信息边界。

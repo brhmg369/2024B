@@ -1,0 +1,33 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+\documentclass[UTF8,a4paper,zihao=-4,fontset=none]{ctexart}
+
+\usepackage{cumcm-paper}
+% Section files use paths relative to paper/sections; this search root keeps
+% those paths portable while the compiler runs from paper/.
+\graphicspath{{sections/}}
+
+\contesttitle{基于精确抽样检验与信念状态 MDP 的生产过程决策}
+\contestkeywords{质量控制；精确单侧检验；信念状态；马尔可夫决策过程；贝叶斯更新}
+
+\begin{document}
+
+% Electronic submissions start here. Do not prepend the signed commitment form
+% or the numbering-only page to the electronic PDF.
+\input{sections/abstract}
+
+% The reference format explicitly says not to include a table of contents.
+\input{sections/1_restatement}
+\input{sections/2_analysis}
+\input{sections/3_assumptions}
+\input{sections/4_symbols}
+\input{sections/5_problem1}
+\input{sections/6_problem2}
+\input{sections/8_sensitivity}
+\input{sections/9_evaluation}
+\input{references}
+
+\appendix
+\input{sections/A_code}
+
+\end{document}

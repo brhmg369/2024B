@@ -179,4 +179,13 @@ programs/results/q2_policy_results.csv
 5. 写出不合格成品拆解后的贝叶斯更新公式。
 6. 写出 Bellman 方程和 \(Q(b,a)\)。
 7. 用 `q2_best_policies.csv` 展示 6 种情况结果。
-8. 用 `q2_state_policy.csv` 或 `q2_policy_results.csv` 画关键状态策略图、动作 \(Q\) 值对比图。
+8. 使用 `code/problem2_figures.py` 已生成的逐问 Figure Pack：策略路径、值迭代/离散精度验证和三类参数敏感性图。
+
+当前正式图及源数据位于：
+
+- `figures/q2/fig_q2_policy_path.pdf` / `.svg`；
+- `figures/q2/fig_q2_validation.pdf` / `.svg`；
+- `figures/q2/fig_q2_sensitivity.pdf` / `.svg`；
+- `figures/q2/data/*.csv`。
+
+图题、引入句、解释和 Figure QA 状态统一记录在 `reports/FIGURE_MANIFEST.md`。

@@ -1,0 +1,41 @@
+# CUMCM scientific figure baseline. Override locally only when the figure's evidence needs it.
+figure.figsize: 6.4, 4.0
+figure.dpi: 120
+figure.facecolor: white
+savefig.dpi: 600
+savefig.facecolor: white
+savefig.bbox: tight
+savefig.pad_inches: 0.05
+
+font.family: serif
+font.serif: Times New Roman, SimSun, STSong, DejaVu Serif
+font.size: 9
+mathtext.fontset: stix
+axes.unicode_minus: False
+
+axes.titlesize: 10
+axes.labelsize: 10
+axes.linewidth: 0.8
+axes.spines.top: False
+axes.spines.right: False
+axes.grid: True
+axes.axisbelow: True
+axes.prop_cycle: cycler('color', ['0072B2', 'E69F00', '009E73', 'D55E00', 'CC79A7', '56B4E9', '4D4D4D'])
+
+grid.color: B8B8B8
+grid.linewidth: 0.5
+grid.alpha: 0.35
+xtick.labelsize: 8
+ytick.labelsize: 8
+xtick.direction: out
+ytick.direction: out
+
+lines.linewidth: 1.7
+lines.markersize: 4.5
+legend.fontsize: 8
+legend.frameon: False
+
+image.cmap: viridis
+pdf.fonttype: 42
+ps.fonttype: 42
+svg.fonttype: none

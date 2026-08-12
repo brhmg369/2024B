@@ -1,0 +1,65 @@
+% !TeX root = ../main.tex
+\section{符号说明}
+
+\subsection{问题一主要符号}
+
+\begin{table}[H]
+  \centering
+  \caption{问题一的抽样参数与观测量}
+  \label{tab:q1-symbols-basic}
+  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.13\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
+    \toprule
+    符号 & 含义 & 类型或取值域 & 单位 \\
+    \midrule
+    $p$ & 批次的真实次品率 & $[0,1]$ & --- \\
+    $p_0$ & 供应商声称的标称次品率，本题取 $0.10$ & $[0,1]$ & --- \\
+    $N$ & 有限批次中的零配件总数 & 正整数 & 件 \\
+    $n$ & 观察数据前确定的抽样检测数 & $1\le n\le N$ & 件 \\
+    $X,x$ & 样本次品数随机变量及其观测值 & $\{0,1,\ldots,n\}$ & 件 \\
+    $\gamma_R,\gamma_A$ & 拒收信度与接收信度 & $(0,1)$ & --- \\
+    $\alpha_R,\alpha_A$ & 两个单侧检验的显著性水平 & $(0,1)$ & --- \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{问题一的判定边界与样本量符号}
+  \label{tab:q1-symbols-decision}
+  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.16\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
+    \toprule
+    符号 & 含义 & 类型或取值域 & 单位 \\
+    \midrule
+    $a_n,r_n$ & 二项模型的接收上界与拒收下界 & 整数临界值 & 件 \\
+    $D$ & 有限总体中的实际次品数 & $\{0,1,\ldots,N\}$ & 件 \\
+    $D_0,D_1$ & 最大可接受与最小不可接受次品数 & 相邻非负整数 & 件 \\
+    $a_{n,N},r_{n,N}$ & 超几何模型的接收上界与拒收下界 & 整数临界值 & 件 \\
+    $n_A,n_R$ & 首次存在接收域与拒收域的样本量 & 正整数 & 件 \\
+    $n_*$ & 首次同时存在互不重叠两类判定域的样本量 & 正整数 & 件 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{问题二主要符号}
+
+\begin{table}[H]
+  \centering
+  \caption{问题二的决策变量、概率与成本符号}
+  \label{tab:q2-symbols}
+  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.16\textwidth}X>{\centering\arraybackslash}p{0.19\textwidth}>{\centering\arraybackslash}p{0.12\textwidth}}
+    \toprule
+    符号 & 含义 & 类型或取值域 & 单位 \\
+    \midrule
+    $\omega_i$ & 当前持有的零配件 $i$ 的真实质量状态 & $\{N,G,B\}$ & --- \\
+    $b(\omega_1,\omega_2)$ & 给定已有信息后的联合信念概率 & $[0,1]$ & --- \\
+    $a,\mathcal A(b)$ & 当前动作与信念状态下的可行动作集 & 离散集合 & --- \\
+    $\pi(b)$ & 信念状态到动作的策略映射 & $\pi(b)\in\mathcal A(b)$ & --- \\
+    $p_i,p_f$ & 零配件 $i$ 与装配过程的次品率 & $[0,1]$ & --- \\
+    $c_i,t_i$ & 零配件 $i$ 的采购成本与检测成本 & 非负实数 & 元/件 \\
+    $c_a,t_f,d$ & 装配、成品检测与拆解成本 & 非负实数 & 元/件 \\
+    $S,L$ & 成品售价与不合格品调换损失 & 非负实数 & 元/件 \\
+    $V(b),Q(b,a)$ & 状态价值与状态--动作价值 & 非负实数 & 元/件 \\
+    $\Pi$ & 交付一件合格成品的期望利润 & 实数 & 元/件 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

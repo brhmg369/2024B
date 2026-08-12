@@ -1,0 +1,137 @@
+{
+  "problem": "2024 年国赛 B 题问题一",
+  "method": "固定样本精确单侧检验；二项主模型，超几何有限总体修正",
+  "parameters": {
+    "nominal_defect_rate": 0.1,
+    "reject_confidence": 0.95,
+    "accept_confidence": 0.9,
+    "population_size": 1000,
+    "search_limit": 200,
+    "selected_sample_size": 22
+  },
+  "scope_note": "已按给定 N 同时计算超几何无放回有限总体修正。",
+  "minimum_sample_sizes": {
+    "binomial": {
+      "first_accept_sample_size": 22,
+      "first_reject_sample_size": 2,
+      "first_both_sample_size": 22
+    },
+    "hypergeometric": {
+      "first_accept_sample_size": 22,
+      "first_reject_sample_size": 2,
+      "first_both_sample_size": 22
+    }
+  },
+  "selected_thresholds": {
+    "binomial": {
+      "model": "binomial",
+      "population_size": null,
+      "sample_size": 22,
+      "nominal_defect_rate": 0.1,
+      "acceptable_defectives": null,
+      "first_unacceptable_defectives": null,
+      "accept_confidence": 0.9,
+      "reject_confidence": 0.95,
+      "accept_alpha": 0.09999999999999998,
+      "reject_alpha": 0.050000000000000044,
+      "accept_cutoff": 0,
+      "reject_cutoff": 6,
+      "accept_tail_at_cutoff": 0.09847709021836139,
+      "accept_tail_after_cutoff": 0.3391988663076885,
+      "reject_tail_at_cutoff": 0.018215981058799083,
+      "reject_tail_before_cutoff": 0.062133671346701023,
+      "inconclusive_low": 1,
+      "inconclusive_high": 5,
+      "accept_constraint_ok": true,
+      "reject_constraint_ok": true,
+      "accept_boundary_maximal_ok": true,
+      "reject_boundary_minimal_ok": true,
+      "disjoint_regions_ok": true,
+      "has_accept_region": true,
+      "has_reject_region": true,
+      "has_both_regions": true
+    },
+    "hypergeometric": {
+      "model": "hypergeometric",
+      "population_size": 1000,
+      "sample_size": 22,
+      "nominal_defect_rate": 0.1,
+      "acceptable_defectives": 100,
+      "first_unacceptable_defectives": 101,
+      "accept_confidence": 0.9,
+      "reject_confidence": 0.95,
+      "accept_alpha": 0.09999999999999998,
+      "reject_alpha": 0.050000000000000044,
+      "accept_cutoff": 0,
+      "reject_cutoff": 6,
+      "accept_tail_at_cutoff": 0.09359846991723553,
+      "accept_tail_after_cutoff": 0.3304729575664416,
+      "reject_tail_at_cutoff": 0.017016847749430568,
+      "reject_tail_before_cutoff": 0.06002601831740309,
+      "inconclusive_low": 1,
+      "inconclusive_high": 5,
+      "accept_constraint_ok": true,
+      "reject_constraint_ok": true,
+      "accept_boundary_maximal_ok": true,
+      "reject_boundary_minimal_ok": true,
+      "disjoint_regions_ok": true,
+      "has_accept_region": true,
+      "has_reject_region": true,
+      "has_both_regions": true
+    }
+  },
+  "observed_results": {
+    "binomial": {
+      "sample_size": 22,
+      "observed_defects": 0,
+      "observed_defect_rate": 0.0,
+      "decision": "接收",
+      "accept_cutoff": 0,
+      "reject_cutoff": 6,
+      "accept_left_tail_probability": 0.09847709021836139,
+      "reject_right_tail_probability": 1.0
+    },
+    "hypergeometric": {
+      "sample_size": 22,
+      "observed_defects": 0,
+      "observed_defect_rate": 0.0,
+      "decision": "接收",
+      "accept_cutoff": 0,
+      "reject_cutoff": 6,
+      "accept_left_tail_probability": 0.09359846991723553,
+      "reject_right_tail_probability": 1.0
+    }
+  },
+  "constraint_checks": {
+    "all_enumerated_thresholds_valid": true,
+    "selected_sample": {
+      "binomial": {
+        "accept_tail_probability_ok": true,
+        "reject_tail_probability_ok": true,
+        "accept_cutoff_is_maximal": true,
+        "reject_cutoff_is_minimal": true,
+        "decision_regions_disjoint": true
+      },
+      "hypergeometric": {
+        "accept_tail_probability_ok": true,
+        "reject_tail_probability_ok": true,
+        "accept_cutoff_is_maximal": true,
+        "reject_cutoff_is_minimal": true,
+        "decision_regions_disjoint": true
+      }
+    }
+  },
+  "warnings": [
+    "首次可拒收样本量只表示存在极端拒收结果，不表示具有指定检验功效。",
+    "阈值适用于预先固定样本量的一次检验，不得直接用于逐样本反复窥探。",
+    "若要设计功效样本量或真正序贯检验，还需给出备择次品率或错误率分配。"
+  ],
+  "outputs": {
+    "thresholds_csv": "results/finite_demo_N1000/q1_thresholds.csv",
+    "sensitivity_csv": "results/finite_demo_N1000/q1_sensitivity.csv",
+    "population_sensitivity_csv": "results/finite_demo_N1000/q1_population_sensitivity.csv",
+    "decision_boundaries_pdf": "figures/finite_demo_N1000/q1_decision_boundaries.pdf",
+    "confidence_sensitivity_pdf": "figures/finite_demo_N1000/q1_confidence_sensitivity.pdf",
+    "population_sensitivity_pdf": "figures/finite_demo_N1000/q1_population_sensitivity.pdf"
+  }
+}

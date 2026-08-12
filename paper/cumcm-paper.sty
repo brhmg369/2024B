@@ -1,0 +1,159 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{cumcm-paper}[2026/08/12 CUMCM 2024-compatible paper layout]
+
+\RequirePackage{fontspec}
+\RequirePackage{xeCJK}
+\RequirePackage{geometry}
+\RequirePackage{fancyhdr}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{longtable}
+\RequirePackage{graphicx}
+\RequirePackage{float}
+\RequirePackage{caption}
+\RequirePackage{enumitem}
+\RequirePackage{xcolor}
+\RequirePackage{listings}
+\RequirePackage{hyperref}
+
+% The reference document uses A4 paper and 2.5 cm margins on all sides.
+\geometry{
+  a4paper,
+  top=2.5cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.5cm,
+  headheight=14.5pt,
+  headsep=0.5cm,
+  footskip=1.25cm
+}
+
+% Use fonts shipped with Windows so the repository compiles without extra fonts.
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}[Scale=MatchLowercase]
+\setCJKmainfont{SimSun}[AutoFakeBold=2.5]
+\setCJKsansfont{SimHei}[AutoFakeBold=2.5]
+\setCJKmonofont{FangSong}
+\setCJKfamilyfont{cumcmsong}{SimSun}[AutoFakeBold=2.5]
+\setCJKfamilyfont{cumcmhei}{SimHei}[AutoFakeBold=2.5]
+\setCJKfamilyfont{cumcmkai}{KaiTi}
+\setCJKfamilyfont{cumcmfang}{FangSong}
+\providecommand{\songti}{\CJKfamily{cumcmsong}}
+\providecommand{\heiti}{\CJKfamily{cumcmhei}}
+\providecommand{\kaishu}{\CJKfamily{cumcmkai}}
+\providecommand{\fangsong}{\CJKfamily{cumcmfang}}
+
+% The source document's 12 pt body uses an exact 18 pt line spacing.
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\linespread{1.25}
+\setlength{\abovedisplayskip}{6pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{6pt plus 2pt minus 2pt}
+\setlength{\abovedisplayshortskip}{3pt plus 2pt}
+\setlength{\belowdisplayshortskip}{3pt plus 2pt}
+
+% Numbered headings are compact and print-friendly; no table of contents is used.
+\ctexset{
+  section = {
+    name = {,、},
+    number = \chinese{section},
+    format = \heiti\zihao{-3}\bfseries,
+    beforeskip = 1.0ex plus 0.2ex,
+    afterskip = 0.8ex
+  },
+  subsection = {
+    name = {,},
+    number = \arabic{section}.\arabic{subsection},
+    format = \heiti\zihao{4}\bfseries,
+    beforeskip = 0.8ex plus 0.2ex,
+    afterskip = 0.5ex
+  },
+  subsubsection = {
+    name = {,},
+    number = \arabic{section}.\arabic{subsection}.\arabic{subsubsection},
+    format = \heiti\zihao{-4}\bfseries,
+    beforeskip = 0.6ex,
+    afterskip = 0.4ex
+  }
+}
+\setcounter{secnumdepth}{3}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=quad,
+  justification=centering
+}
+\renewcommand{\arraystretch}{1.2}
+\setlist{nosep,leftmargin=2em}
+
+\definecolor{cumcmgray}{RGB}{245,245,245}
+\lstset{
+  basicstyle=\ttfamily\fontsize{7pt}{8pt}\selectfont,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  stringstyle=\ttfamily,
+  numbers=left,
+  numberstyle=\ttfamily\fontsize{6pt}{7pt}\selectfont\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{gray!45},
+  backgroundcolor=\color{cumcmgray},
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  tabsize=4,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\hypersetup{
+  hidelinks,
+  pdfcreator={XeLaTeX},
+  pdfproducer={latexmk + XeLaTeX}
+}
+
+\makeatletter
+\newcommand{\cumcm@title}{请填写论文标题}
+\newcommand{\cumcm@keywords}{请填写关键词}
+\newcommand{\contesttitle}[1]{\gdef\cumcm@title{#1}}
+\newcommand{\contestkeywords}[1]{\gdef\cumcm@keywords{#1}}
+
+% The electronic paper starts with this abstract page and numbers it as page 1.
+\newenvironment{contestabstract}{
+  \pagenumbering{arabic}
+  \setcounter{page}{1}
+  \thispagestyle{plain}
+  \begin{center}
+    {\heiti\zihao{2}\bfseries \cumcm@title\par}
+  \end{center}
+  \vspace{1.2em}
+  \noindent{\heiti\zihao{-4}\bfseries 摘要：}\songti
+}{
+  \par\vspace{0.8em}
+  \noindent{\heiti\zihao{-4}\bfseries 关键词：}\songti\cumcm@keywords
+  \par
+  \clearpage
+}
+\makeatother
+
+\newcommand{\dif}{\mathop{}\!\mathrm{d}}
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\ii}{\mathrm{i}}

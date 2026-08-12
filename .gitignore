@@ -10,3 +10,18 @@ __pycache__/
 !references/*.pdf
 !references/*.docx
 !references/*.jpeg
+!figures/*.pdf
+!figures/**/*.pdf
+
+# Local reference conversions and LaTeX build products
+/tmp/
+/output/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc

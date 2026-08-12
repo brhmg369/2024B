@@ -16,7 +16,9 @@ from collections import deque
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
+import argparse
 import csv
+import json
 import math
 
 
@@ -396,11 +398,44 @@ def select_best_action(
     return min(tied, key=lambda item: item[0].priority)
 
 
+def validate_case_params(params: CaseParams) -> None:
+    for name in ("p1", "p2", "pf"):
+        value = getattr(params, name)
+        if not 0.0 <= value < 1.0:
+            raise ValueError(f"{name} must be in [0, 1)")
+    for name in (
+        "c1",
+        "t1",
+        "c2",
+        "t2",
+        "ca",
+        "tf",
+        "sale",
+        "exchange_loss",
+        "disassemble_cost",
+    ):
+        if getattr(params, name) < 0.0:
+            raise ValueError(f"{name} must be non-negative")
+
+
+def bellman_residual(
+    states: list[tuple[float, ...]],
+    params: CaseParams,
+    values: dict[tuple[float, ...], float],
+) -> float:
+    return max(
+        abs(select_best_action(state, params, values)[2] - values[state])
+        for state in states
+    )
+
+
 def solve_case(params: CaseParams) -> dict:
+    validate_case_params(params)
     states = discover_states(params)
     values = {state: 0.0 for state in states}
     delta = math.inf
     iterations = 0
+    residual_history: list[float] = []
 
     for iteration in range(1, MAX_ITERATIONS + 1):
         delta = 0.0
@@ -408,6 +443,7 @@ def solve_case(params: CaseParams) -> dict:
             _, _, best_value = select_best_action(state, params, values)
             delta = max(delta, abs(best_value - values[state]))
             values[state] = best_value
+        residual_history.append(delta)
         iterations = iteration
         if delta < VALUE_TOL:
             break
@@ -424,6 +460,8 @@ def solve_case(params: CaseParams) -> dict:
         "policy": policy,
         "iterations": iterations,
         "delta": delta,
+        "bellman_residual": bellman_residual(states, params, values),
+        "residual_history": residual_history,
         "converged": converged,
     }
 
@@ -595,6 +633,43 @@ def lookup_action(
     return item[0].name
 
 
+def trace_initial_policy(solution: dict) -> dict[str, str]:
+    """Trace the on-policy path through purchases to the first assembly."""
+
+    state = START_STATE
+    component_actions: list[str] = []
+    first_assembly_action = ""
+    after_first_defect_action = ""
+
+    for _ in range(12):
+        action, action_eval, _ = solution["policy"][state]
+        if action.kind == "assemble":
+            first_assembly_action = action.name
+            if action_eval.transitions:
+                defect_state = action_eval.transitions[0][1]
+                after_first_defect_action = lookup_action(solution, defect_state)
+            else:
+                after_first_defect_action = "terminal"
+            break
+
+        component_actions.append(action.name)
+        if len(action_eval.transitions) != 1:
+            after_first_defect_action = "branch_before_assembly"
+            break
+        state = action_eval.transitions[0][1]
+
+    return {
+        "initial_component_action_1": (
+            component_actions[0] if component_actions else ""
+        ),
+        "initial_component_action_2": (
+            component_actions[1] if len(component_actions) > 1 else ""
+        ),
+        "first_assembly_action": first_assembly_action,
+        "after_first_defect_action": after_first_defect_action,
+    }
+
+
 def build_best_rows(solutions: list[dict]) -> list[dict]:
     rows = []
     for solution in solutions:
@@ -603,6 +678,7 @@ def build_best_rows(solutions: list[dict]) -> list[dict]:
         both_unknown = state_after_buying_both_without_tests(params)
         known_good = state_both_known_good()
         defect_unknown = state_after_defect_from_unknown_both(params)
+        traced = trace_initial_policy(solution)
 
         rows.append(
             {
@@ -610,7 +686,9 @@ def build_best_rows(solutions: list[dict]) -> list[dict]:
                 "num_states": len(solution["states"]),
                 "iterations": solution["iterations"],
                 "bellman_delta": f"{solution['delta']:.3e}",
+                "bellman_residual": f"{solution['bellman_residual']:.3e}",
                 "converged": int(solution["converged"]),
+                **traced,
                 "start_action": start_action.name,
                 "both_new_uninspected_state_action": lookup_action(solution, both_unknown),
                 "both_known_good_state_action": lookup_action(solution, known_good),
@@ -622,8 +700,43 @@ def build_best_rows(solutions: list[dict]) -> list[dict]:
     return rows
 
 
-def main() -> None:
-    out_dir = Path(__file__).resolve().parent / "results"
+def build_convergence_rows(solutions: list[dict]) -> list[dict]:
+    rows = []
+    for solution in solutions:
+        params: CaseParams = solution["params"]
+        rows.extend(
+            {
+                "case": params.case,
+                "iteration": iteration,
+                "update_delta": f"{delta:.12e}",
+            }
+            for iteration, delta in enumerate(
+                solution["residual_history"],
+                start=1,
+            )
+        )
+    return rows
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="2024 年国赛 B 题问题二：联合信念状态 MDP。"
+    )
+    parser.add_argument("--output-dir", type=Path, help="CSV/JSON 输出目录。")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+    project_root = Path(__file__).resolve().parents[1]
+    out_dir = (args.output_dir or project_root / "programs" / "results").resolve()
     solutions = [solve_case(params) for params in CASES]
 
     state_policy_rows: list[dict] = []
@@ -633,10 +746,38 @@ def main() -> None:
         action_value_rows.extend(build_action_value_rows(solution))
 
     best_rows = build_best_rows(solutions)
+    convergence_rows = build_convergence_rows(solutions)
 
     write_csv(out_dir / "q2_policy_results.csv", action_value_rows)
     write_csv(out_dir / "q2_state_policy.csv", state_policy_rows)
     write_csv(out_dir / "q2_best_policies.csv", best_rows)
+    write_csv(out_dir / "q2_convergence.csv", convergence_rows)
+    write_json(
+        out_dir / "q2_summary.json",
+        {
+            "problem": "2024 年国赛 B 题问题二",
+            "method": "联合信念状态马尔可夫决策过程与 Gauss-Seidel 值迭代",
+            "solver": {
+                "belief_round_digits": ROUND_DIGITS,
+                "probability_tolerance": PROB_TOL,
+                "value_tolerance": VALUE_TOL,
+                "maximum_iterations": MAX_ITERATIONS,
+            },
+            "cases": best_rows,
+            "checks": {
+                "all_converged": all(solution["converged"] for solution in solutions),
+                "maximum_bellman_residual": max(
+                    solution["bellman_residual"] for solution in solutions
+                ),
+            },
+            "outputs": {
+                "best_policies": "programs/results/q2_best_policies.csv",
+                "state_policy": "programs/results/q2_state_policy.csv",
+                "action_values": "programs/results/q2_policy_results.csv",
+                "convergence": "programs/results/q2_convergence.csv",
+            },
+        },
+    )
 
     print("Best MDP policies by case:")
     for row in best_rows:

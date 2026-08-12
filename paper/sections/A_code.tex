@@ -1,0 +1,78 @@
+% !TeX root = ../main.tex
+\section{支撑材料与复现说明}
+
+\subsection{问题一复现环境与文件对应}
+
+问题一计算在 Windows 环境下使用 Python 3.12.10 完成，绘图使用 Matplotlib 3.10.9；概率计算为确定性精确枚举，不使用随机数。表~\ref{tab:q1-supporting-files}给出支撑材料与论文结果的对应关系。
+
+\begin{table}[H]
+  \centering
+  \caption{问题一支撑材料及用途}
+  \label{tab:q1-supporting-files}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.42\textwidth}X}
+    \toprule
+    文件 & 用途 \\
+    \midrule
+    \path{code/problem1.py} & 二项与超几何概率、临界值搜索、观测判定、敏感性分析和图表生成 \\
+    \path{code/test_problem1.py} & 概率归一化、边界值、三态判定和有限总体退化性质测试 \\
+    \path{results/q1_summary.json} & 正式参数、最小样本量、临界概率和一致性校核汇总 \\
+    \path{results/q1_thresholds.csv} & 样本量 $1$ 至 $200$ 的接收与拒收阈值 \\
+    \path{results/q1_sensitivity.csv} & 置信水平敏感性原始结果 \\
+    \path{results/q1_population_sensitivity.csv} & 有限总体量检验原始结果 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{问题一核心程序}
+
+下列代码分别给出二项与超几何概率计算，以及固定样本临界值、最小样本量和三态判定的核心实现。完整程序与全部结果文件随支撑材料一并提交。
+
+\lstinputlisting[
+  language=Python,
+  firstline=119,
+  lastline=168,
+  caption={问题一的二项与超几何概率计算},
+  label={lst:q1-probabilities}
+]{../code/problem1.py}
+
+\lstinputlisting[
+  language=Python,
+  firstline=237,
+  lastline=450,
+  caption={问题一的临界值搜索与观测判定},
+  label={lst:q1-thresholds}
+]{../code/problem1.py}
+
+\section{问题二复现说明}
+
+问题二程序从初始联合信念出发生成可达状态，执行值迭代并输出状态策略、动作价值、收敛历史和六种情形汇总；绘图程序在此基础上重算参数扰动与信念离散精度，生成正文三幅 Figure Pack。两段程序均为确定性计算，不使用随机种子。
+
+\begin{table}[H]
+  \centering
+  \caption{问题二支撑材料及用途}
+  \label{tab:q2-supporting-files}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.44\textwidth}X}
+    \toprule
+    文件 & 用途 \\
+    \midrule
+    \path{programs/q2_decision_model.py} & 信念状态、贝叶斯转移、Bellman 值迭代及结果导出 \\
+    \path{code/problem2_figures.py} & 策略路径、收敛、离散精度和参数敏感性 Figure Pack \\
+    \path{code/test_problem2.py} & 转移概率、Bellman 残差、正式成本与受限策略比较测试 \\
+    \path{programs/results/q2_summary.json} & 求解器设置、六种情形结果及最大残差汇总 \\
+    \path{programs/results/q2_state_policy.csv} & 所有可达信念状态的最优动作 \\
+    \path{programs/results/q2_policy_results.csv} & 各状态下全部可行动作的 $Q$ 值 \\
+    \path{figures/q2/data/q2_sensitivity.csv} & 三类参数扰动的利润、策略切换与残差 \\
+    \path{figures/q2/data/q2_rounding_validation.csv} & 四至七位信念合并精度的成本比较 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+下列程序段给出动作价值、Bellman 最优动作选择与值迭代的核心实现；完整程序及全部结果随支撑材料提交。
+
+\lstinputlisting[
+  language=Python,
+  firstline=373,
+  lastline=455,
+  caption={问题二的 Bellman 动作选择与值迭代},
+  label={lst:q2-model}
+]{../programs/q2_decision_model.py}

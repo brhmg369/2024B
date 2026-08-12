@@ -1,7 +1,7 @@
-﻿case,num_states,iterations,bellman_delta,converged,start_action,both_new_uninspected_state_action,both_known_good_state_action,after_defect_from_uninspected_parts_action,expected_cost,expected_profit
-1,366,26,4.641e-11,1,buy_p1_test,inspect_p1,assemble_notest_disassemble,inspect_p1,37.077779,18.922221
-2,303,23,1.776e-13,1,buy_p1_test,inspect_p1,assemble_notest_disassemble,inspect_p2,44.0,12.0
-3,366,29,9.414e-11,1,buy_p1_notest,assemble_test_disassemble,assemble_notest_disassemble,inspect_p1,39.346664,16.653336
-4,303,23,1.954e-13,1,buy_p1_test,inspect_p1,assemble_test_disassemble,inspect_p2,41.25,14.75
-5,526,27,3.038e-11,1,buy_p2_test,inspect_p2,assemble_notest_disassemble,inspect_p2,40.55,15.45
-6,369,29,8.081e-11,1,buy_p1_notest,assemble_notest_scrap,assemble_notest_scrap,inspect_p1,34.32133,21.67867
+﻿case,num_states,iterations,bellman_delta,bellman_residual,converged,initial_component_action_1,initial_component_action_2,first_assembly_action,after_first_defect_action,start_action,both_new_uninspected_state_action,both_known_good_state_action,after_defect_from_uninspected_parts_action,expected_cost,expected_profit
+1,366,26,4.641e-11,1.501e-11,1,buy_p1_test,buy_p2_notest,assemble_notest_disassemble,inspect_p2,buy_p1_test,inspect_p1,assemble_notest_disassemble,inspect_p1,37.077779,18.922221
+2,303,23,1.776e-13,3.553e-14,1,buy_p1_test,buy_p2_test,assemble_notest_disassemble,assemble_notest_disassemble,buy_p1_test,inspect_p1,assemble_notest_disassemble,inspect_p2,44.0,12.0
+3,366,29,9.414e-11,1.788e-11,1,buy_p1_notest,buy_p2_notest,assemble_test_disassemble,inspect_p1,buy_p1_notest,assemble_test_disassemble,assemble_notest_disassemble,inspect_p1,39.346664,16.653336
+4,303,23,1.954e-13,3.553e-14,1,buy_p1_test,buy_p2_test,assemble_test_disassemble,assemble_test_disassemble,buy_p1_test,inspect_p1,assemble_test_disassemble,inspect_p2,41.25,14.75
+5,526,27,3.038e-11,9.919e-12,1,buy_p2_test,buy_p1_notest,assemble_notest_disassemble,inspect_p1,buy_p2_test,inspect_p2,assemble_notest_disassemble,inspect_p2,40.55,15.45
+6,369,29,8.081e-11,2.594e-11,1,buy_p1_notest,buy_p2_notest,assemble_notest_scrap,buy_p1_notest,buy_p1_notest,assemble_notest_scrap,assemble_notest_scrap,inspect_p1,34.32133,21.67867
