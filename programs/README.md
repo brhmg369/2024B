@@ -2,15 +2,11 @@
 
 ## `q2_decision_model.py`
 
-Enumerates the rigorous Question 2 decision set and computes expected cost and expected profit.
+Solves Question 2 with a belief-state Markov decision process.
 
-The program follows the handoff workflow:
-
-- enumerate seven binary decisions `(x1, x2, y, z, r1, r2, yr)`
-- track recovered parts as `known_good`, `unknown_good`, or `unknown_bad`
-- solve a linear expectation system for each policy
-- mark singular or infinite-loop policies as infeasible
-- compare feasible non-dominated policies by expected profit
+The program tracks the joint probability distribution of the two held parts'
+qualities, then uses Bellman value iteration to choose the best action in each
+state.
 
 Run:
 
@@ -18,4 +14,8 @@ Run:
 python programs/q2_decision_model.py
 ```
 
-Outputs are written to `programs/results/`.
+Outputs are written to `programs/results/`:
+
+- `q2_best_policies.csv`: best cost/profit summary for the six cases.
+- `q2_state_policy.csv`: optimal MDP action for every reachable state.
+- `q2_policy_results.csv`: all state-action Q values.

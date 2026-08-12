@@ -1,24 +1,18 @@
-"""Question 2 Markov expected-cost model.
+"""Question 2 belief-state MDP model.
 
-Decision variables:
-    x1, x2: inspect part 1/2 before the first assembly.
-    y: inspect the first finished product.
-    z: disassemble defective finished products.
-    r1, r2: inspect recovered part 1/2 after disassembly.
-    yr: inspect finished products assembled after disassembly.
+The second question is modeled as a Markov decision process on the firm's
+information state.  A state is a belief distribution over the actual qualities
+of the two currently held parts.  This avoids the earlier shortcut of assigning
+a standalone recovered-part value: recovered parts are either inspected, or they
+go directly back into assembly.
 
-The model deliberately does not use a standalone recovered-part value V. In the
-problem statement, only defective finished products can be scrapped or
-disassembled. Recovered parts must repeat the part-inspection and assembly
-steps: inspect and discard only detected defective parts, or do not inspect and
-send the part directly to assembly.
-
-Cost unit: expected total cost to finally deliver one qualified finished
-product. Profit unit: sale price minus expected cost.
+Cost unit: expected total cost to finally deliver one qualified product.
+Profit unit: sale price minus expected cost.
 """
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
@@ -26,21 +20,19 @@ import csv
 import math
 
 
-NONE = "none"
-KNOWN_GOOD = "known_good"
-UNKNOWN_GOOD = "unknown_good"
-UNKNOWN_BAD = "unknown_bad"
+NONE = "N"
+GOOD = "G"
+BAD = "B"
 
-STATUSES = [NONE, KNOWN_GOOD, UNKNOWN_GOOD, UNKNOWN_BAD]
-PHASE_INITIAL = 0
-PHASE_RECOVERY = 1
-PHASES = [PHASE_INITIAL, PHASE_RECOVERY]
-STATES = [
-    (s1, s2, phase)
-    for s1 in STATUSES
-    for s2 in STATUSES
-    for phase in PHASES
-]
+QUALITIES = (NONE, GOOD, BAD)
+COMBOS = tuple(product(QUALITIES, repeat=2))
+COMBO_INDEX = {combo: i for i, combo in enumerate(COMBOS)}
+
+ROUND_DIGITS = 6
+PROB_TOL = 1e-12
+VALUE_TOL = 1e-10
+MAX_ITERATIONS = 20000
+MAX_STATES = 100000
 
 
 @dataclass(frozen=True)
@@ -61,17 +53,21 @@ class CaseParams:
 
 
 @dataclass(frozen=True)
-class Policy:
-    x1: int
-    x2: int
-    y: int
-    z: int
-    r1: int
-    r2: int
-    yr: int
+class Action:
+    name: str
+    kind: str
+    priority: int
+    part: int | None = None
+    inspect_part: int | None = None
+    product_test: int | None = None
+    disassemble: int | None = None
 
-    def key(self) -> tuple[int, int, int, int, int, int, int]:
-        return self.x1, self.x2, self.y, self.z, self.r1, self.r2, self.yr
+
+@dataclass(frozen=True)
+class ActionEval:
+    cost: float
+    terminal_prob: float
+    transitions: tuple[tuple[float, tuple[float, ...]], ...]
 
 
 CASES = [
@@ -84,32 +80,10 @@ CASES = [
 ]
 
 
-def solve_linear_system(matrix: list[list[float]], rhs: list[float]) -> list[float]:
-    """Solve Ax=b with Gaussian elimination and partial pivoting."""
-    n = len(rhs)
-    a = [row[:] + [rhs[i]] for i, row in enumerate(matrix)]
-
-    for col in range(n):
-        pivot = max(range(col, n), key=lambda row: abs(a[row][col]))
-        if abs(a[pivot][col]) < 1e-12:
-            raise ValueError("singular system")
-        if pivot != col:
-            a[col], a[pivot] = a[pivot], a[col]
-
-        pivot_value = a[col][col]
-        for j in range(col, n + 1):
-            a[col][j] /= pivot_value
-
-        for row in range(n):
-            if row == col:
-                continue
-            factor = a[row][col]
-            if abs(factor) < 1e-15:
-                continue
-            for j in range(col, n + 1):
-                a[row][j] -= factor * a[col][j]
-
-    return [a[i][n] for i in range(n)]
+START_STATE = tuple(
+    1.0 if combo == (NONE, NONE) else 0.0
+    for combo in COMBOS
+)
 
 
 def part_params(params: CaseParams, part: int) -> tuple[float, float, float]:
@@ -118,220 +92,395 @@ def part_params(params: CaseParams, part: int) -> tuple[float, float, float]:
     return params.p2, params.c2, params.t2
 
 
-def first_inspection(policy: Policy, part: int) -> int:
-    return policy.x1 if part == 1 else policy.x2
+def canonicalize(prob_by_combo: dict[tuple[str, str], float]) -> tuple[float, ...]:
+    values = [max(0.0, prob_by_combo.get(combo, 0.0)) for combo in COMBOS]
+    total = sum(values)
+    if total <= PROB_TOL:
+        raise ValueError("empty belief state")
+
+    values = [value / total for value in values]
+    rounded = [0.0 if value < PROB_TOL else round(value, ROUND_DIGITS) for value in values]
+    rounded_total = sum(rounded)
+
+    if rounded_total <= PROB_TOL:
+        max_index = max(range(len(values)), key=lambda i: values[i])
+        rounded = [0.0 for _ in values]
+        rounded[max_index] = 1.0
+        return tuple(rounded)
+
+    residual = round(1.0 - rounded_total, ROUND_DIGITS)
+    if abs(residual) > 0:
+        max_index = max(range(len(rounded)), key=lambda i: rounded[i])
+        rounded[max_index] = round(rounded[max_index] + residual, ROUND_DIGITS)
+
+    rounded = [0.0 if abs(value) < PROB_TOL else value for value in rounded]
+    return tuple(rounded)
 
 
-def recovered_inspection(policy: Policy, part: int) -> int:
-    return policy.r1 if part == 1 else policy.r2
+def iter_positive(state: tuple[float, ...]):
+    for combo, prob in zip(COMBOS, state):
+        if prob > PROB_TOL:
+            yield combo, prob
 
 
-def expected_inspected_new_cost(price: float, test_cost: float, defect_rate: float) -> float:
-    return (price + test_cost) / (1 - defect_rate)
+def set_part(combo: tuple[str, str], part: int, quality: str) -> tuple[str, str]:
+    if part == 1:
+        return quality, combo[1]
+    return combo[0], quality
 
 
-def acquire_new_part_options(params: CaseParams, policy: Policy, part: int):
-    """Return options for a missing part: probability, cost, actual_good, known_good.
-
-    A newly purchased part is governed by x_i. If x_i=1, buying and inspection
-    are repeated until a qualified part is obtained.
-    """
-    p, c, t = part_params(params, part)
-    if first_inspection(policy, part):
-        return [(1.0, expected_inspected_new_cost(c, t, p), True, True)]
-    return [
-        (1 - p, c, True, False),
-        (p, c, False, False),
-    ]
+def marginal_prob(state: tuple[float, ...], part: int, quality: str) -> float:
+    idx = part - 1
+    return sum(prob for combo, prob in iter_positive(state) if combo[idx] == quality)
 
 
-def part_use_options(params: CaseParams, policy: Policy, part: int, status: str):
-    """Return options when a part enters the current assembly attempt.
-
-    Options are probability, cost, actual_good, known_good_before_assembly.
-    """
-    _, _, test_cost = part_params(params, part)
-
-    if status == NONE:
-        return acquire_new_part_options(params, policy, part)
-
-    if status == KNOWN_GOOD:
-        return [(1.0, 0.0, True, True)]
-
-    if status == UNKNOWN_GOOD:
-        if recovered_inspection(policy, part):
-            return [(1.0, test_cost, True, True)]
-        return [(1.0, 0.0, True, False)]
-
-    if status == UNKNOWN_BAD:
-        if recovered_inspection(policy, part):
-            # Only detected defective parts can be discarded. After discarding,
-            # the process returns to step (1) for this part and obtains a new
-            # part according to the first-stage inspection rule x_i.
-            return [
-                (prob, test_cost + cost, actual_good, known)
-                for prob, cost, actual_good, known
-                in acquire_new_part_options(params, policy, part)
-            ]
-        return [(1.0, 0.0, False, False)]
-
-    raise ValueError(f"unknown part status: {status}")
+def part_missing(state: tuple[float, ...], part: int) -> bool:
+    return marginal_prob(state, part, NONE) >= 1.0 - 1e-9
 
 
-def next_recovered_status(actual_good: bool, known_good: bool) -> str:
-    if actual_good and known_good:
-        return KNOWN_GOOD
-    if actual_good:
-        return UNKNOWN_GOOD
-    return UNKNOWN_BAD
+def part_present(state: tuple[float, ...], part: int) -> bool:
+    return marginal_prob(state, part, NONE) <= 1e-9
 
 
-def initial_defect_probability(params: CaseParams, policy: Policy) -> float:
-    u1 = 1.0 if policy.x1 else 1 - params.p1
-    u2 = 1.0 if policy.x2 else 1 - params.p2
-    return 1 - u1 * u2 * (1 - params.pf)
+def both_parts_present(state: tuple[float, ...]) -> bool:
+    return part_present(state, 1) and part_present(state, 2)
 
 
-def state_terms(
+def condition_state(
+    state: tuple[float, ...],
+    predicate,
+    transform=lambda combo: combo,
+) -> tuple[float, tuple[float, ...] | None]:
+    event_prob = 0.0
+    out: dict[tuple[str, str], float] = {}
+
+    for combo, prob in iter_positive(state):
+        if not predicate(combo):
+            continue
+        event_prob += prob
+        next_combo = transform(combo)
+        out[next_combo] = out.get(next_combo, 0.0) + prob
+
+    if event_prob <= PROB_TOL:
+        return 0.0, None
+    return event_prob, canonicalize(out)
+
+
+def buy_transition(
+    state: tuple[float, ...],
     params: CaseParams,
-    policy: Policy,
-    state: tuple[str, str, int],
-) -> tuple[float, dict[tuple[str, str, int], float]]:
-    """Return one state's constant cost and transition probabilities."""
-    status1, status2, phase = state
-    product_inspection = policy.y if phase == PHASE_INITIAL else policy.yr
+    part: int,
+    inspect: int,
+) -> ActionEval:
+    p, price, test_cost = part_params(params, part)
 
-    constant = 0.0
-    transitions: dict[tuple[str, str, int], float] = {}
+    if inspect:
+        cost = (price + test_cost) / (1.0 - p)
+        out = {set_part(combo, part, GOOD): prob for combo, prob in iter_positive(state)}
+        return ActionEval(cost, 0.0, ((1.0, canonicalize(out)),))
 
-    for prob1, cost1, good1, known1 in part_use_options(params, policy, 1, status1):
-        for prob2, cost2, good2, known2 in part_use_options(params, policy, 2, status2):
-            base_prob = prob1 * prob2
-            base_cost = cost1 + cost2 + params.ca + product_inspection * params.tf
+    out: dict[tuple[str, str], float] = {}
+    for combo, prob in iter_positive(state):
+        good_combo = set_part(combo, part, GOOD)
+        bad_combo = set_part(combo, part, BAD)
+        out[good_combo] = out.get(good_combo, 0.0) + prob * (1.0 - p)
+        out[bad_combo] = out.get(bad_combo, 0.0) + prob * p
+    return ActionEval(price, 0.0, ((1.0, canonicalize(out)),))
 
-            if good1 and good2:
-                quality_outcomes = [(1 - params.pf, True), (params.pf, False)]
-            else:
-                quality_outcomes = [(1.0, False)]
 
-            for quality_prob, product_good in quality_outcomes:
-                prob = base_prob * quality_prob
-                if prob == 0:
+def inspect_transition(
+    state: tuple[float, ...],
+    params: CaseParams,
+    part: int,
+) -> ActionEval:
+    _, _, test_cost = part_params(params, part)
+    idx = part - 1
+    transitions: list[tuple[float, tuple[float, ...]]] = []
+
+    good_prob, good_state = condition_state(
+        state,
+        lambda combo: combo[idx] == GOOD,
+    )
+    if good_state is not None:
+        transitions.append((good_prob, good_state))
+
+    bad_prob, bad_state = condition_state(
+        state,
+        lambda combo: combo[idx] == BAD,
+        lambda combo: set_part(combo, part, NONE),
+    )
+    if bad_state is not None:
+        transitions.append((bad_prob, bad_state))
+
+    return ActionEval(test_cost, 0.0, tuple(transitions))
+
+
+def defect_probability_for_combo(combo: tuple[str, str], params: CaseParams) -> float:
+    if combo == (GOOD, GOOD):
+        return params.pf
+    return 1.0
+
+
+def assemble_transition(
+    state: tuple[float, ...],
+    params: CaseParams,
+    product_test: int,
+    disassemble: int,
+) -> ActionEval:
+    success_prob = state[COMBO_INDEX[(GOOD, GOOD)]] * (1.0 - params.pf)
+    defect_prob = 1.0 - success_prob
+    extra_if_defect = (0.0 if product_test else params.exchange_loss)
+    if disassemble:
+        extra_if_defect += params.disassemble_cost
+
+    cost = params.ca + product_test * params.tf + defect_prob * extra_if_defect
+
+    if defect_prob <= PROB_TOL:
+        return ActionEval(cost, 1.0, tuple())
+
+    if not disassemble:
+        return ActionEval(cost, success_prob, ((defect_prob, START_STATE),))
+
+    posterior: dict[tuple[str, str], float] = {}
+    for combo, prob in iter_positive(state):
+        combo_defect_prob = defect_probability_for_combo(combo, params)
+        weight = prob * combo_defect_prob
+        if weight <= PROB_TOL:
+            continue
+        posterior[combo] = posterior.get(combo, 0.0) + weight
+
+    return ActionEval(cost, success_prob, ((defect_prob, canonicalize(posterior)),))
+
+
+def available_actions(state: tuple[float, ...]) -> list[Action]:
+    actions: list[Action] = []
+
+    for part in (1, 2):
+        if part_missing(state, part):
+            actions.append(
+                Action(
+                    name=f"buy_p{part}_test",
+                    kind="buy",
+                    priority=10 + part,
+                    part=part,
+                    inspect_part=1,
+                )
+            )
+            actions.append(
+                Action(
+                    name=f"buy_p{part}_notest",
+                    kind="buy",
+                    priority=20 + part,
+                    part=part,
+                    inspect_part=0,
+                )
+            )
+
+    for part in (1, 2):
+        if part_present(state, part) and marginal_prob(state, part, BAD) > PROB_TOL:
+            actions.append(
+                Action(
+                    name=f"inspect_p{part}",
+                    kind="inspect",
+                    priority=30 + part,
+                    part=part,
+                )
+            )
+
+    if both_parts_present(state):
+        actions.extend(
+            [
+                Action(
+                    name="assemble_notest_scrap",
+                    kind="assemble",
+                    priority=40,
+                    product_test=0,
+                    disassemble=0,
+                ),
+                Action(
+                    name="assemble_notest_disassemble",
+                    kind="assemble",
+                    priority=41,
+                    product_test=0,
+                    disassemble=1,
+                ),
+                Action(
+                    name="assemble_test_scrap",
+                    kind="assemble",
+                    priority=42,
+                    product_test=1,
+                    disassemble=0,
+                ),
+                Action(
+                    name="assemble_test_disassemble",
+                    kind="assemble",
+                    priority=43,
+                    product_test=1,
+                    disassemble=1,
+                ),
+            ]
+        )
+
+    return actions
+
+
+def evaluate_action(
+    state: tuple[float, ...],
+    action: Action,
+    params: CaseParams,
+) -> ActionEval:
+    if action.kind == "buy":
+        assert action.part is not None and action.inspect_part is not None
+        return buy_transition(state, params, action.part, action.inspect_part)
+
+    if action.kind == "inspect":
+        assert action.part is not None
+        return inspect_transition(state, params, action.part)
+
+    if action.kind == "assemble":
+        assert action.product_test is not None and action.disassemble is not None
+        return assemble_transition(state, params, action.product_test, action.disassemble)
+
+    raise ValueError(f"unknown action kind: {action.kind}")
+
+
+def discover_states(params: CaseParams) -> list[tuple[float, ...]]:
+    seen = {START_STATE}
+    ordered = [START_STATE]
+    queue: deque[tuple[float, ...]] = deque([START_STATE])
+
+    while queue:
+        state = queue.popleft()
+        for action in available_actions(state):
+            action_eval = evaluate_action(state, action, params)
+            for prob, next_state in action_eval.transitions:
+                if prob <= PROB_TOL or next_state in seen:
                     continue
-
-                constant += prob * base_cost
-                if product_good:
-                    continue
-
-                extra = 0.0 if product_inspection else params.exchange_loss
-                if policy.z:
-                    extra += params.disassemble_cost
-                    next_state = (
-                        next_recovered_status(good1, known1),
-                        next_recovered_status(good2, known2),
-                        PHASE_RECOVERY,
+                if len(ordered) >= MAX_STATES:
+                    raise RuntimeError(
+                        f"state limit exceeded for case {params.case}; "
+                        f"lower ROUND_DIGITS or raise MAX_STATES"
                     )
-                else:
-                    next_state = (NONE, NONE, PHASE_INITIAL)
-
-                constant += prob * extra
-                transitions[next_state] = transitions.get(next_state, 0.0) + prob
-
-    return constant, transitions
-
-
-def reachable_states(params: CaseParams, policy: Policy):
-    start = (NONE, NONE, PHASE_INITIAL)
-    seen = {start}
-    ordered = [start]
-    cursor = 0
-
-    while cursor < len(ordered):
-        state = ordered[cursor]
-        cursor += 1
-        _, transitions = state_terms(params, policy, state)
-        for next_state, prob in transitions.items():
-            if prob <= 0 or next_state in seen:
-                continue
-            seen.add(next_state)
-            ordered.append(next_state)
+                seen.add(next_state)
+                ordered.append(next_state)
+                queue.append(next_state)
 
     return ordered
 
 
-def build_equations(params: CaseParams, policy: Policy):
-    states = reachable_states(params, policy)
-    index = {state: i for i, state in enumerate(states)}
-    n = len(states)
-    matrix = [[0.0 for _ in range(n)] for _ in range(n)]
-    rhs = [0.0 for _ in range(n)]
+def q_value(
+    action_eval: ActionEval,
+    values: dict[tuple[float, ...], float],
+) -> float:
+    return action_eval.cost + sum(
+        prob * values[next_state]
+        for prob, next_state in action_eval.transitions
+    )
 
-    for i in range(n):
-        matrix[i][i] = 1.0
 
+def select_best_action(
+    state: tuple[float, ...],
+    params: CaseParams,
+    values: dict[tuple[float, ...], float],
+) -> tuple[Action, ActionEval, float]:
+    candidates = []
+    for action in available_actions(state):
+        action_eval = evaluate_action(state, action, params)
+        candidates.append((action, action_eval, q_value(action_eval, values)))
+
+    best_value = min(value for _, _, value in candidates)
+    tied = [
+        item for item in candidates
+        if item[2] <= best_value + 1e-9
+    ]
+    return min(tied, key=lambda item: item[0].priority)
+
+
+def solve_case(params: CaseParams) -> dict:
+    states = discover_states(params)
+    values = {state: 0.0 for state in states}
+    delta = math.inf
+    iterations = 0
+
+    for iteration in range(1, MAX_ITERATIONS + 1):
+        delta = 0.0
+        for state in states:
+            _, _, best_value = select_best_action(state, params, values)
+            delta = max(delta, abs(best_value - values[state]))
+            values[state] = best_value
+        iterations = iteration
+        if delta < VALUE_TOL:
+            break
+
+    converged = delta < VALUE_TOL
+    policy: dict[tuple[float, ...], tuple[Action, ActionEval, float]] = {}
     for state in states:
-        row = index[state]
-        constant, transitions = state_terms(params, policy, state)
-        rhs[row] = constant
-        for next_state, prob in transitions.items():
-            matrix[row][index[next_state]] -= prob
-
-    return matrix, rhs, states
-
-
-def is_dominated_reinspection(policy: Policy) -> bool:
-    """Detect reinspection of a part already known qualified before assembly."""
-    return bool(policy.z and ((policy.x1 and policy.r1) or (policy.x2 and policy.r2)))
-
-
-def evaluate_policy(params: CaseParams, policy: Policy) -> dict:
-    q_initial = initial_defect_probability(params, policy)
-    ql_minus_tf = q_initial * params.exchange_loss - params.tf
-
-    dominated = is_dominated_reinspection(policy)
-    matrix, rhs, states = build_equations(params, policy)
-    try:
-        values = solve_linear_system(matrix, rhs)
-        expected_cost = values[states.index((NONE, NONE, PHASE_INITIAL))]
-        expected_profit = params.sale - expected_cost
-        feasible = 1
-        infeasible_reason = ""
-    except ValueError:
-        expected_cost = math.inf
-        expected_profit = -math.inf
-        feasible = 0
-        infeasible_reason = "infinite loop or singular expectation system"
+        policy[state] = select_best_action(state, params, values)
 
     return {
-        "case": params.case,
-        "x1": policy.x1,
-        "x2": policy.x2,
-        "y": policy.y,
-        "z": policy.z,
-        "r1": policy.r1,
-        "r2": policy.r2,
-        "yr": policy.yr,
-        "initial_product_defect_prob_q": round(q_initial, 6),
-        "qL_minus_tf": round(ql_minus_tf, 6),
-        "feasible": feasible,
-        "dominated_reinspection": int(dominated),
-        "infeasible_reason": infeasible_reason,
-        "expected_cost": "inf" if not feasible else round(expected_cost, 6),
-        "expected_profit": "-inf" if not feasible else round(expected_profit, 6),
+        "params": params,
+        "states": states,
+        "values": values,
+        "policy": policy,
+        "iterations": iterations,
+        "delta": delta,
+        "converged": converged,
     }
 
 
-def enumerate_policies():
-    for values in product([0, 1], repeat=7):
-        yield Policy(*values)
+def state_label(state: tuple[float, ...]) -> str:
+    parts = [
+        f"{combo[0]}{combo[1]}:{prob:.6g}"
+        for combo, prob in iter_positive(state)
+    ]
+    return ";".join(parts)
 
 
-def evaluate_all() -> list[dict]:
-    rows = []
-    for params in CASES:
-        for policy in enumerate_policies():
-            rows.append(evaluate_policy(params, policy))
-    return rows
+def state_features(state: tuple[float, ...]) -> dict[str, float]:
+    p_gg = state[COMBO_INDEX[(GOOD, GOOD)]]
+    return {
+        "p_NN": state[COMBO_INDEX[(NONE, NONE)]],
+        "p_NG": state[COMBO_INDEX[(NONE, GOOD)]],
+        "p_NB": state[COMBO_INDEX[(NONE, BAD)]],
+        "p_GN": state[COMBO_INDEX[(GOOD, NONE)]],
+        "p_GG": p_gg,
+        "p_GB": state[COMBO_INDEX[(GOOD, BAD)]],
+        "p_BN": state[COMBO_INDEX[(BAD, NONE)]],
+        "p_BG": state[COMBO_INDEX[(BAD, GOOD)]],
+        "p_BB": state[COMBO_INDEX[(BAD, BAD)]],
+        "part1_missing_prob": marginal_prob(state, 1, NONE),
+        "part1_good_prob": marginal_prob(state, 1, GOOD),
+        "part1_bad_prob": marginal_prob(state, 1, BAD),
+        "part2_missing_prob": marginal_prob(state, 2, NONE),
+        "part2_good_prob": marginal_prob(state, 2, GOOD),
+        "part2_bad_prob": marginal_prob(state, 2, BAD),
+    }
+
+
+def defect_prob_if_assemble(state: tuple[float, ...], params: CaseParams) -> str:
+    if not both_parts_present(state):
+        return ""
+    return f"{1.0 - state[COMBO_INDEX[(GOOD, GOOD)]] * (1.0 - params.pf):.10f}"
+
+
+def is_self_loop_if_repeated(
+    state: tuple[float, ...],
+    action_eval: ActionEval,
+) -> int:
+    if action_eval.terminal_prob > PROB_TOL:
+        return 0
+    if len(action_eval.transitions) != 1:
+        return 0
+    prob, next_state = action_eval.transitions[0]
+    return int(prob >= 1.0 - 1e-9 and next_state == state)
+
+
+def rounded(value: float | str, digits: int = 6) -> float | str:
+    if isinstance(value, str):
+        return value
+    if math.isinf(value):
+        return "inf" if value > 0 else "-inf"
+    return round(value, digits)
 
 
 def write_csv(path: Path, rows: list[dict]) -> None:
@@ -343,47 +492,160 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def profit_value(row: dict) -> float:
-    if row["expected_profit"] == "-inf":
-        return -math.inf
-    return float(row["expected_profit"])
+def build_state_policy_rows(solution: dict) -> list[dict]:
+    params: CaseParams = solution["params"]
+    states = solution["states"]
+    values = solution["values"]
+    policy = solution["policy"]
+    state_index = {state: i for i, state in enumerate(states)}
+
+    rows = []
+    for state in states:
+        action, action_eval, best_value = policy[state]
+        row = {
+            "case": params.case,
+            "state_id": state_index[state],
+            "state": state_label(state),
+            **{key: rounded(value, 10) for key, value in state_features(state).items()},
+            "defect_prob_if_assemble": defect_prob_if_assemble(state, params),
+            "best_action": action.name,
+            "best_action_kind": action.kind,
+            "best_action_part": "" if action.part is None else action.part,
+            "best_product_test": "" if action.product_test is None else action.product_test,
+            "best_disassemble": "" if action.disassemble is None else action.disassemble,
+            "one_step_cost": rounded(action_eval.cost, 6),
+            "terminal_prob": rounded(action_eval.terminal_prob, 10),
+            "continuation_prob": rounded(
+                sum(prob for prob, _ in action_eval.transitions),
+                10,
+            ),
+            "self_loop_if_repeated": is_self_loop_if_repeated(state, action_eval),
+            "value": rounded(best_value, 6),
+        }
+        rows.append(row)
+    return rows
 
 
-def sort_key(row: dict):
-    return (
-        row["case"],
-        row["feasible"] == 0,
-        row["dominated_reinspection"] == 1,
-        -profit_value(row),
-    )
+def build_action_value_rows(solution: dict) -> list[dict]:
+    params: CaseParams = solution["params"]
+    states = solution["states"]
+    values = solution["values"]
+    policy = solution["policy"]
+    state_index = {state: i for i, state in enumerate(states)}
+
+    rows = []
+    for state in states:
+        best_action, _, best_value = policy[state]
+        for action in available_actions(state):
+            action_eval = evaluate_action(state, action, params)
+            value = q_value(action_eval, values)
+            row = {
+                "case": params.case,
+                "state_id": state_index[state],
+                "state": state_label(state),
+                **{key: rounded(feature, 10) for key, feature in state_features(state).items()},
+                "action": action.name,
+                "action_kind": action.kind,
+                "part": "" if action.part is None else action.part,
+                "part_inspection": "" if action.inspect_part is None else action.inspect_part,
+                "product_test": "" if action.product_test is None else action.product_test,
+                "disassemble": "" if action.disassemble is None else action.disassemble,
+                "one_step_cost": rounded(action_eval.cost, 6),
+                "terminal_prob": rounded(action_eval.terminal_prob, 10),
+                "continuation_prob": rounded(
+                    sum(prob for prob, _ in action_eval.transitions),
+                    10,
+                ),
+                "self_loop_if_repeated": is_self_loop_if_repeated(state, action_eval),
+                "q_value": rounded(value, 6),
+                "is_optimal": int(abs(value - best_value) <= 1e-7),
+                "chosen_by_tiebreak": int(action.name == best_action.name),
+            }
+            rows.append(row)
+    return rows
+
+
+def state_after_buying_both_without_tests(params: CaseParams) -> tuple[float, ...]:
+    first = buy_transition(START_STATE, params, 1, inspect=0).transitions[0][1]
+    second = buy_transition(first, params, 2, inspect=0).transitions[0][1]
+    return second
+
+
+def state_both_known_good() -> tuple[float, ...]:
+    return canonicalize({(GOOD, GOOD): 1.0})
+
+
+def state_after_defect_from_unknown_both(params: CaseParams) -> tuple[float, ...] | None:
+    both_unknown = state_after_buying_both_without_tests(params)
+    action_eval = assemble_transition(both_unknown, params, product_test=1, disassemble=1)
+    if not action_eval.transitions:
+        return None
+    return action_eval.transitions[0][1]
+
+
+def lookup_action(
+    solution: dict,
+    state: tuple[float, ...] | None,
+) -> str:
+    if state is None:
+        return ""
+    item = solution["policy"].get(state)
+    if item is None:
+        return ""
+    return item[0].name
+
+
+def build_best_rows(solutions: list[dict]) -> list[dict]:
+    rows = []
+    for solution in solutions:
+        params: CaseParams = solution["params"]
+        start_action, _, start_value = solution["policy"][START_STATE]
+        both_unknown = state_after_buying_both_without_tests(params)
+        known_good = state_both_known_good()
+        defect_unknown = state_after_defect_from_unknown_both(params)
+
+        rows.append(
+            {
+                "case": params.case,
+                "num_states": len(solution["states"]),
+                "iterations": solution["iterations"],
+                "bellman_delta": f"{solution['delta']:.3e}",
+                "converged": int(solution["converged"]),
+                "start_action": start_action.name,
+                "both_new_uninspected_state_action": lookup_action(solution, both_unknown),
+                "both_known_good_state_action": lookup_action(solution, known_good),
+                "after_defect_from_uninspected_parts_action": lookup_action(solution, defect_unknown),
+                "expected_cost": rounded(start_value, 6),
+                "expected_profit": rounded(params.sale - start_value, 6),
+            }
+        )
+    return rows
 
 
 def main() -> None:
     out_dir = Path(__file__).resolve().parent / "results"
-    rows = evaluate_all()
-    rows.sort(key=sort_key)
+    solutions = [solve_case(params) for params in CASES]
 
-    best_rows = []
-    for case_id in sorted({row["case"] for row in rows}):
-        case_rows = [
-            row for row in rows
-            if row["case"] == case_id
-            and row["feasible"]
-            and not row["dominated_reinspection"]
-        ]
-        best_rows.append(max(case_rows, key=profit_value))
+    state_policy_rows: list[dict] = []
+    action_value_rows: list[dict] = []
+    for solution in solutions:
+        state_policy_rows.extend(build_state_policy_rows(solution))
+        action_value_rows.extend(build_action_value_rows(solution))
 
-    write_csv(out_dir / "q2_policy_results.csv", rows)
+    best_rows = build_best_rows(solutions)
+
+    write_csv(out_dir / "q2_policy_results.csv", action_value_rows)
+    write_csv(out_dir / "q2_state_policy.csv", state_policy_rows)
     write_csv(out_dir / "q2_best_policies.csv", best_rows)
 
-    print("Best non-dominated feasible policies by case:")
+    print("Best MDP policies by case:")
     for row in best_rows:
         print(
-            f"case {row['case']}: "
-            f"x1={row['x1']}, x2={row['x2']}, y={row['y']}, z={row['z']}, "
-            f"r1={row['r1']}, r2={row['r2']}, yr={row['yr']}, "
-            f"cost={float(row['expected_cost']):.4f}, "
-            f"profit={float(row['expected_profit']):.4f}"
+            f"case {row['case']}: cost={float(row['expected_cost']):.4f}, "
+            f"profit={float(row['expected_profit']):.4f}, "
+            f"start={row['start_action']}, "
+            f"both_unknown={row['both_new_uninspected_state_action']}, "
+            f"known_good={row['both_known_good_state_action']}"
         )
 
 

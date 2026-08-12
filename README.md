@@ -11,7 +11,7 @@ Raw problem statements and grading files are kept in the workspace root for refe
 
 ## Quick Start
 
-Run the Question 2 strategy enumeration:
+Run the Question 2 MDP solver:
 
 ```powershell
 python programs/q2_decision_model.py
@@ -20,6 +20,7 @@ python programs/q2_decision_model.py
 The script writes:
 
 - `programs/results/q2_policy_results.csv`
+- `programs/results/q2_state_policy.csv`
 - `programs/results/q2_best_policies.csv`
 
 The paper writer can use `docs/q2_model_handoff.md` and `docs/q2_formulas.tex` for method explanation and formula insertion.
