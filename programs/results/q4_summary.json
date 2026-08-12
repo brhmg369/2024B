@@ -1,0 +1,125 @@
+{
+  "method": "Beta posterior scenarios + analytical production expectation + GA + exact enumeration",
+  "posterior_assumption": "Table rates are independent sample defect rates with uniform prior; n=40 is the main modelling assumption.",
+  "scenario_count": 5000,
+  "main_sample_size": 40,
+  "posterior_specs_n40": [
+    {
+      "nominal_rate": 0.05,
+      "n": 40,
+      "k": 2,
+      "posterior": "Beta(3,39)"
+    },
+    {
+      "nominal_rate": 0.1,
+      "n": 40,
+      "k": 4,
+      "posterior": "Beta(5,37)"
+    },
+    {
+      "nominal_rate": 0.2,
+      "n": 40,
+      "k": 8,
+      "posterior": "Beta(9,33)"
+    }
+  ],
+  "q2_fixed16_note": "Q2 output enumerates the requested fixed 4-bit restricted strategies; the repository's formal Q2 model remains a state-dependent belief MDP.",
+  "q2_best": [
+    {
+      "case": 1,
+      "n": 40,
+      "fixed_best_strategy": "1101",
+      "fixed_best_expected_profit": 18.111111,
+      "bayes_best_strategy": "1101",
+      "bayes_best_expected_profit": 16.910951,
+      "bayes_profit_sd": 1.85618,
+      "bayes_profit_q05": 13.485334,
+      "strategy_changed": 0
+    },
+    {
+      "case": 2,
+      "n": 40,
+      "fixed_best_strategy": "1101",
+      "fixed_best_expected_profit": 12.0,
+      "bayes_best_strategy": "1101",
+      "bayes_best_expected_profit": 10.525612,
+      "bayes_profit_sd": 3.042806,
+      "bayes_profit_q05": 5.024039,
+      "strategy_changed": 0
+    },
+    {
+      "case": 3,
+      "n": 40,
+      "fixed_best_strategy": "1101",
+      "fixed_best_expected_profit": 15.444444,
+      "bayes_best_strategy": "1111",
+      "bayes_best_expected_profit": 14.274183,
+      "bayes_profit_sd": 1.749813,
+      "bayes_profit_q05": 11.108482,
+      "strategy_changed": 1
+    },
+    {
+      "case": 4,
+      "n": 40,
+      "fixed_best_strategy": "1111",
+      "fixed_best_expected_profit": 14.75,
+      "bayes_best_strategy": "1111",
+      "bayes_best_expected_profit": 13.58121,
+      "bayes_profit_sd": 2.567216,
+      "bayes_profit_q05": 8.931681,
+      "strategy_changed": 0
+    },
+    {
+      "case": 5,
+      "n": 40,
+      "fixed_best_strategy": "0100",
+      "fixed_best_expected_profit": 11.987654,
+      "bayes_best_strategy": "1101",
+      "bayes_best_expected_profit": 9.023173,
+      "bayes_profit_sd": 2.662232,
+      "bayes_profit_q05": 4.230436,
+      "strategy_changed": 1
+    },
+    {
+      "case": 6,
+      "n": 40,
+      "fixed_best_strategy": "0000",
+      "fixed_best_expected_profit": 21.67867,
+      "bayes_best_strategy": "1000",
+      "bayes_best_expected_profit": 18.86461,
+      "bayes_profit_sd": 2.97227,
+      "bayes_profit_q05": 13.206789,
+      "strategy_changed": 1
+    }
+  ],
+  "q3_fixed_best_strategy": "1111111111111101",
+  "q3_fixed_best_expected_profit": 60.222222,
+  "q3_ga_best_strategy": "1111111111111101",
+  "q3_ga_best_expected_profit": 55.057279,
+  "q3_exact_best_strategy": "1111111111111101",
+  "q3_exact_best_expected_profit": 55.057279,
+  "q3_exact_best_profit_sd": 4.859284,
+  "q3_exact_best_profit_q05": 46.3376,
+  "q3_ga_matches_exact": 1,
+  "q3_ga_hit_count": 20,
+  "q3_ga_hit_rate": 1.0,
+  "q3_decoded_exact_best": {
+    "part_1_inspection": "inspect",
+    "part_2_inspection": "inspect",
+    "part_3_inspection": "inspect",
+    "part_4_inspection": "inspect",
+    "part_5_inspection": "inspect",
+    "part_6_inspection": "inspect",
+    "part_7_inspection": "inspect",
+    "part_8_inspection": "inspect",
+    "semi_1_inspection": "inspect",
+    "semi_2_inspection": "inspect",
+    "semi_3_inspection": "inspect",
+    "defective_semi_1": "disassemble",
+    "defective_semi_2": "disassemble",
+    "defective_semi_3": "disassemble",
+    "finished_product_inspection": "no_inspection",
+    "defective_finished_product": "disassemble"
+  },
+  "elapsed_seconds": 5.153
+}
