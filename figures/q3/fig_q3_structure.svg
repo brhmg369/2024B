@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="537.3pt" height="306.576pt" viewBox="0 0 537.3 306.576" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-12T18:57:28.637271</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.9, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 306.576 
+L 537.3 306.576 
+L 537.3 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 38.0565 83.93256 
+L 75.1635 83.93256 
+Q 78.3441 83.93256 78.3441 80.9388 
+L 78.3441 55.9908 
+Q 78.3441 52.99704 75.1635 52.99704 
+L 38.0565 52.99704 
+Q 34.8759 52.99704 34.8759 55.9908 
+L 34.8759 80.9388 
+Q 34.8759 83.93256 38.0565 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 91.0665 83.93256 
+L 128.1735 83.93256 
+Q 131.3541 83.93256 131.3541 80.9388 
+L 131.3541 55.9908 
+Q 131.3541 52.99704 128.1735 52.99704 
+L 91.0665 52.99704 
+Q 87.8859 52.99704 87.8859 55.9908 
+L 87.8859 80.9388 
+Q 87.8859 83.93256 91.0665 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 144.0765 83.93256 
+L 181.1835 83.93256 
+Q 184.3641 83.93256 184.3641 80.9388 
+L 184.3641 55.9908 
+Q 184.3641 52.99704 181.1835 52.99704 
+L 144.0765 52.99704 
+Q 140.8959 52.99704 140.8959 55.9908 
+L 140.8959 80.9388 
+Q 140.8959 83.93256 144.0765 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 197.0865 83.93256 
+L 234.1935 83.93256 
+Q 237.3741 83.93256 237.3741 80.9388 
+L 237.3741 55.9908 
+Q 237.3741 52.99704 234.1935 52.99704 
+L 197.0865 52.99704 
+Q 193.9059 52.99704 193.9059 55.9908 
+L 193.9059 80.9388 
+Q 193.9059 83.93256 197.0865 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 250.0965 83.93256 
+L 287.2035 83.93256 
+Q 290.3841 83.93256 290.3841 80.9388 
+L 290.3841 55.9908 
+Q 290.3841 52.99704 287.2035 52.99704 
+L 250.0965 52.99704 
+Q 246.9159 52.99704 246.9159 55.9908 
+L 246.9159 80.9388 
+Q 246.9159 83.93256 250.0965 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 303.1065 83.93256 
+L 340.2135 83.93256 
+Q 343.3941 83.93256 343.3941 80.9388 
+L 343.3941 55.9908 
+Q 343.3941 52.99704 340.2135 52.99704 
+L 303.1065 52.99704 
+Q 299.9259 52.99704 299.9259 55.9908 
+L 299.9259 80.9388 
+Q 299.9259 83.93256 303.1065 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 356.1165 83.93256 
+L 393.2235 83.93256 
+Q 396.4041 83.93256 396.4041 80.9388 
+L 396.4041 55.9908 
+Q 396.4041 52.99704 393.2235 52.99704 
+L 356.1165 52.99704 
+Q 352.9359 52.99704 352.9359 55.9908 
+L 352.9359 80.9388 
+Q 352.9359 83.93256 356.1165 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 409.1265 83.93256 
+L 446.2335 83.93256 
+Q 449.4141 83.93256 449.4141 80.9388 
+L 449.4141 55.9908 
+Q 449.4141 52.99704 446.2335 52.99704 
+L 409.1265 52.99704 
+Q 405.9459 52.99704 405.9459 55.9908 
+L 405.9459 80.9388 
+Q 405.9459 83.93256 409.1265 83.93256 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #56b4e9; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 66.6819 179.73288 
+L 152.5581 179.73288 
+Q 155.7387 179.73288 155.7387 176.73912 
+L 155.7387 149.79528 
+Q 155.7387 146.80152 152.5581 146.80152 
+L 66.6819 146.80152 
+Q 63.5013 146.80152 63.5013 149.79528 
+L 63.5013 176.73912 
+Q 63.5013 179.73288 66.6819 179.73288 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #009e73; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 225.7119 179.73288 
+L 311.5881 179.73288 
+Q 314.7687 179.73288 314.7687 176.73912 
+L 314.7687 149.79528 
+Q 314.7687 146.80152 311.5881 146.80152 
+L 225.7119 146.80152 
+Q 222.5313 146.80152 222.5313 149.79528 
+L 222.5313 176.73912 
+Q 222.5313 179.73288 225.7119 179.73288 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #009e73; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 358.2369 179.73288 
+L 444.1131 179.73288 
+Q 447.2937 179.73288 447.2937 176.73912 
+L 447.2937 149.79528 
+Q 447.2937 146.80152 444.1131 146.80152 
+L 358.2369 146.80152 
+Q 355.0563 146.80152 355.0563 149.79528 
+L 355.0563 176.73912 
+Q 355.0563 179.73288 358.2369 179.73288 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #009e73; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 191.2554 270.5436 
+L 293.0346 270.5436 
+Q 296.2152 270.5436 296.2152 267.54984 
+L 296.2152 238.61016 
+Q 296.2152 235.6164 293.0346 235.6164 
+L 191.2554 235.6164 
+Q 188.0748 235.6164 188.0748 238.61016 
+L 188.0748 267.54984 
+Q 188.0748 270.5436 191.2554 270.5436 
+z
+" clip-path="url(#p4e650193e6)" style="fill: #0072b2; stroke: #4d4d4d; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <!-- $x_1$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(43.17 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_2">
+    <!-- $x_2$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(96.18 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">2</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_3">
+    <!-- $x_3$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(149.19 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">3</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_4">
+    <!-- $x_4$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(202.2 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">4</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_5">
+    <!-- $x_5$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(255.21 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">5</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_6">
+    <!-- $x_6$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(308.22 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">6</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_7">
+    <!-- $x_7$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(361.23 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">7</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_8">
+    <!-- $x_8$：检测 -->
+    <g style="fill: #4d4d4d" transform="translate(414.24 105.21032)">
+     <text>
+      <tspan x="0" y="-0.234375" style="font-style: italic; font-size: 7px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="3.107986" y="0.69375" style="font-size: 4.9px; font-family: 'STIXGeneral'; fill: #4d4d4d">8</tspan>
+      <tspan x="5.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">：</tspan>
+      <tspan x="12.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="19.867361" y="-0.234375" style="font-size: 7px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="patch_14">
+    <path d="M 57.886394 84.97141 
+Q 83.11379 115.365582 107.484315 144.727389 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 106.46858 140.37213 
+L 107.484315 144.727389 
+L 103.390667 142.926822 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 109.62 85.433338 
+Q 109.62 115.368138 109.62 143.961298 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 111.62 139.961298 
+L 109.62 143.961298 
+L 107.62 139.961298 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 161.353606 84.97141 
+Q 136.12621 115.365582 111.755685 144.727389 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 115.849333 142.926822 
+L 111.755685 144.727389 
+L 112.77142 140.37213 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 216.916394 84.97141 
+Q 242.14379 115.365582 266.514315 144.727389 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 265.49858 140.37213 
+L 266.514315 144.727389 
+L 262.420667 142.926822 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 268.65 85.433338 
+Q 268.65 115.368138 268.65 143.961298 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 270.65 139.961298 
+L 268.65 143.961298 
+L 266.65 139.961298 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 320.383606 84.97141 
+Q 295.15621 115.365582 270.785685 144.727389 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 274.879333 142.926822 
+L 270.785685 144.727389 
+L 271.80142 140.37213 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 375.43519 85.277413 
+Q 387.922548 115.367156 399.895647 144.217731 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 400.209664 139.756633 
+L 399.895647 144.217731 
+L 396.515179 141.289859 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 426.91481 85.277413 
+Q 414.427452 115.367156 402.454353 144.217731 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 405.834821 141.289859 
+L 402.454353 144.217731 
+L 402.140336 139.756633 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="text_9">
+    <!-- 半成品检测 $x_9,x_{10},x_{11}$； -->
+    <g style="fill: #4d4d4d" transform="translate(22.1535 200.84272)">
+     <text>
+      <tspan x="0" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">半</tspan>
+      <tspan x="8" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">成</tspan>
+      <tspan x="16" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">品</tspan>
+      <tspan x="24" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="32" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+      <tspan x="40" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d"> </tspan>
+      <tspan x="76.025645" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">；</tspan>
+      <tspan x="44" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="53.860283" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="66.520555" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="47.551987" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">9</tspan>
+      <tspan x="57.41227" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="60.212259" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">0</tspan>
+      <tspan x="70.072542" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="72.872531" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="50.705101" y="-0.40625" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">,</tspan>
+      <tspan x="63.365373" y="-0.40625" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">,</tspan>
+     </text>
+    </g>
+    <!-- 不合格半成品拆解 $x_{12},x_{13},x_{14}$ -->
+    <g style="fill: #4d4d4d" transform="translate(22.1535 210.01072)">
+     <text>
+      <tspan x="0" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">不</tspan>
+      <tspan x="8" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">合</tspan>
+      <tspan x="16" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">格</tspan>
+      <tspan x="24" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">半</tspan>
+      <tspan x="32" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">成</tspan>
+      <tspan x="40" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">品</tspan>
+      <tspan x="48" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">拆</tspan>
+      <tspan x="56" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">解</tspan>
+      <tspan x="64" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d"> </tspan>
+      <tspan x="68" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="80.660272" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="93.320544" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="71.551987" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="74.351976" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">2</tspan>
+      <tspan x="84.212259" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="87.012248" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">3</tspan>
+      <tspan x="96.872531" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="99.67252" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">4</tspan>
+      <tspan x="77.50509" y="-0.40625" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">,</tspan>
+      <tspan x="90.165363" y="-0.40625" style="font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">,</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="patch_22">
+    <path d="M 111.460176 180.023747 
+Q 175.883311 207.674988 239.073571 234.797063 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 236.18668 231.381531 
+L 239.073571 234.797063 
+L 234.609011 235.057257 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 267.803924 181.049654 
+Q 255.396525 207.676733 243.55579 233.087714 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 247.058105 230.306746 
+L 243.55579 233.087714 
+L 243.432404 228.617281 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 399.289528 179.908311 
+Q 321.658414 207.675207 245.290566 234.990262 
+" style="fill: none; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 249.730461 235.526296 
+L 245.290566 234.990262 
+L 248.38333 231.759966 
+z
+" style="fill: #4d4d4d; stroke: #4d4d4d; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="text_10">
+    <!-- 成品检测 $x_{15}$； -->
+    <g style="fill: #4d4d4d" transform="translate(366.7185 233.7524)">
+     <text>
+      <tspan x="0" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">成</tspan>
+      <tspan x="8" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">品</tspan>
+      <tspan x="16" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">检</tspan>
+      <tspan x="24" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">测</tspan>
+      <tspan x="32" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d"> </tspan>
+      <tspan x="45.50509" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">；</tspan>
+      <tspan x="36" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="39.551987" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="42.351976" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">5</tspan>
+     </text>
+    </g>
+    <!-- 不合格成品拆解 $x_{16}$ -->
+    <g style="fill: #4d4d4d" transform="translate(366.7185 242.9204)">
+     <text>
+      <tspan x="0" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">不</tspan>
+      <tspan x="8" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">合</tspan>
+      <tspan x="16" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">格</tspan>
+      <tspan x="24" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">成</tspan>
+      <tspan x="32" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">品</tspan>
+      <tspan x="40" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">拆</tspan>
+      <tspan x="48" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d">解</tspan>
+      <tspan x="56" y="-0.40625" style="font-size: 8px; font-family: 'SimSun'; fill: #4d4d4d"> </tspan>
+      <tspan x="60" y="-0.40625" style="font-style: italic; font-size: 8px; font-family: 'STIXGeneral'; fill: #4d4d4d">x</tspan>
+      <tspan x="63.551987" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">1</tspan>
+      <tspan x="66.351976" y="0.653125" style="font-size: 5.6px; font-family: 'STIXGeneral'; fill: #4d4d4d">6</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: start; fill: #4d4d4d" x="22.1535" y="27.46985" transform="rotate(-0 22.1535 27.46985)">质量传递：任一下级输入不合格则上级必不合格；仅当下级全部合格时，上级按给定次品率产生装配缺陷。</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="56.61" y="71.12105" transform="rotate(-0 56.61 71.12105)">零配件1</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="109.62" y="71.12105" transform="rotate(-0 109.62 71.12105)">零配件2</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="162.63" y="71.12105" transform="rotate(-0 162.63 71.12105)">零配件3</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="215.64" y="71.12105" transform="rotate(-0 215.64 71.12105)">零配件4</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="268.65" y="71.12105" transform="rotate(-0 268.65 71.12105)">零配件5</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="321.66" y="71.12105" transform="rotate(-0 321.66 71.12105)">零配件6</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="374.67" y="71.12105" transform="rotate(-0 374.67 71.12105)">零配件7</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="427.68" y="71.12105" transform="rotate(-0 427.68 71.12105)">零配件8</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="109.62" y="165.8922" transform="rotate(-0 109.62 165.8922)">半成品（1、2、3）</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="268.65" y="165.8922" transform="rotate(-0 268.65 165.8922)">半成品（4、5、6）</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 8px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="401.175" y="165.8922" transform="rotate(-0 401.175 165.8922)">半成品（7、8）</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 9px; font-family: 'SimSun'; text-anchor: middle; fill: #ffffff" x="242.145" y="255.962813" transform="rotate(-0 242.145 255.962813)">成品</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p4e650193e6">
+   <rect x="3.6" y="3.6" width="530.1" height="299.376"/>
+  </clipPath>
+ </defs>
+</svg>

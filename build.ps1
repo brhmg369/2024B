@@ -5,6 +5,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $false
 
 $repoRoot = $PSScriptRoot
 $paperRoot = Join-Path $repoRoot 'paper'

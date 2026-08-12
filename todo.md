@@ -61,4 +61,33 @@
 - [x] 为问题二补齐 Bellman 残差、信念离散精度和三类参数敏感性验证。
 - [x] 按逐问 Figure Pack 规范重组 Q1 图并新增 Q2 三幅正式图。
 - [x] 同步更新摘要、分析、符号、问题二正文、评价、附录和状态台账。
-- [ ] 问题三、问题四尚未开始。
+- [ ] 问题四尚未开始。
+
+# 第三问工作清单
+
+## 阶段 1：拉取远端模型
+
+- [x] 拉取远端 `3a0b51c` 问题三 GA/枚举模型、结果与交接文档。
+- [x] 核对 `programs/q3_decision_model.py`、`q3_summary.txt`、全枚举 CSV 与赛题表 2 参数一致。
+
+## 阶段 2：分析建模与结果记录
+
+- [x] 在 `reports/ANALYSIS_MODELING_REPORT.md` 补写问题三：任务、16 位编码、状态、期望递推、GA、验证与敏感性方案。
+- [x] 在 `reports/RESULTS_REPORT.md` 补写问题三：最优策略与指标、GA/枚举验证、Monte Carlo、敏感性（GA 口径）。
+
+## 阶段 3：Q3 Figure Pack
+
+- [x] 编写 `code/problem3_figures.py`，生成 GA 收敛、全枚举利润分布、前 10 比较、参数敏感性四幅数据图。
+- [x] 编写 `code/problem3_schematic.py` 并保留 `figures/q3/fig_q3_structure.drawio`，生成生产结构机制图 PDF/SVG。
+- [x] 全部图带源数据（`figures/q3/data/`）、PDF/SVG 与 QA 记录，更新 `reports/FIGURE_MANIFEST.md` 与 `reports/DRAWIO_REPORT.md`。
+
+## 阶段 4：论文增量写作
+
+- [x] 新增 `paper/sections/7_problem3.tex`，完成模型、算法、结果、验证与结论闭环。
+- [x] 全篇同步：摘要、问题重述、问题分析、假设、符号、评价、附录、参考文献（GA/MDP）。
+- [x] 更新 `reports/PAPER_WRITING_STATE.md` 八类台账，问题三标记闭环完成。
+
+## 阶段 5：编译与验收
+
+- [x] XeLaTeX 编译通过并逐页检查（见 `reports/VERIFY_REPORT.md`）。
+- [ ] 问题四尚未开始。

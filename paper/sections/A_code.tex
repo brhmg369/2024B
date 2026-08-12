@@ -76,3 +76,45 @@
   caption={问题二的 Bellman 动作选择与值迭代},
   label={lst:q2-model}
 ]{../programs/q2_decision_model.py}
+
+\section{问题三复现说明}
+
+问题三程序按 16 位策略生成可达状态并求解期望成本线性方程组，再用遗传算法搜索，以全枚举全部 $65536$ 个策略作为全局最优基准；绘图程序重跑 20 次 GA 记录逐代收敛历史，并生成利润分布、前 10 名和参数敏感性 Figure Pack，示意脚本按同一布局渲染生产结构图。GA 使用固定种子，全部结果可确定性复现。
+
+\begin{table}[H]
+  \centering
+  \caption{问题三支撑材料及用途}
+  \label{tab:q3-supporting-files}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.44\textwidth}X}
+    \toprule
+    文件 & 用途 \\
+    \midrule
+    \path{programs/q3_decision_model.py} & 固定策略期望递推、遗传算法、全枚举与 Monte Carlo 复核 \\
+    \path{code/problem3_figures.py} & GA 收敛、利润分布、前 10 与敏感性 Figure Pack \\
+    \path{code/problem3_schematic.py} & 生产结构机制图的 PDF/SVG 渲染 \\
+    \path{programs/results/q3_summary.txt} & 最优策略、期望成本与利润、GA 命中率、Monte Carlo 汇总 \\
+    \path{programs/results/q3_top10_strategies.csv} & 全枚举排名前 10 的策略 \\
+    \path{programs/results/q3_exact_all_strategies.csv} & 全部 $65536$ 个策略的精确评价 \\
+    \path{figures/q3/data/q3_ga_history.csv} & 20 次 GA 独立运行的逐代最优利润 \\
+    \path{figures/q3/data/q3_sensitivity.csv} & 三类参数扰动的 GA 搜索结果 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+下列程序段分别给出固定策略期望成本求解与遗传算法主循环的核心实现；完整程序及全部结果随支撑材料提交。
+
+\lstinputlisting[
+  language=Python,
+  firstline=367,
+  lastline=409,
+  caption={问题三的固定策略期望成本求解},
+  label={lst:q3-evaluate}
+]{../programs/q3_decision_model.py}
+
+\lstinputlisting[
+  language=Python,
+  firstline=448,
+  lastline=511,
+  caption={问题三的遗传算法主循环},
+  label={lst:q3-ga}
+]{../programs/q3_decision_model.py}

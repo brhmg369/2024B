@@ -116,6 +116,6 @@ VS Code 中安装推荐的 LaTeX Workshop 扩展后，保存 `.tex` 会自动触
 - `paper/sections/9_evaluation.tex`：模型评价、改进与推广。
 - `paper/sections/A_code.tex`：复现说明和程序附录。
 
-逐问完成状态、结果来源、假设、图表、风险及运行版本统一记录在 `reports/PAPER_WRITING_STATE.md`。问题三模型与结果已就位但论文章节尚未写入，问题四尚未开始；因此当前文件属于工作稿，不应作为全题终稿提交。
+逐问完成状态、结果来源、假设、图表、风险及运行版本统一记录在 `reports/PAPER_WRITING_STATE.md`。问题一至问题三已形成模型、结果与论文章节，问题四尚未开始；因此当前文件属于工作稿，不应作为全题终稿提交。
 
 `format2024.doc` 中的承诺书和编号专用页属于提交表单，不放入电子论文 PDF。

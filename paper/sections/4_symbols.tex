@@ -63,3 +63,30 @@
     \bottomrule
   \end{tabularx}
 \end{table}
+
+\subsection{问题三主要符号}
+
+\begin{table}[H]
+  \centering
+  \caption{问题三的决策向量、状态与期望递推符号}
+  \label{tab:q3-symbols}
+  \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{0.15\textwidth}X>{\centering\arraybackslash}p{0.25\textwidth}>{\centering\arraybackslash}p{0.11\textwidth}}
+    \toprule
+    符号 & 含义 & 类型或取值域 & 单位 \\
+    \midrule
+    $X$ & 16 位策略向量 $(x_1,\ldots,x_{16})$ & $\{0,1\}^{16}$ & --- \\
+    $x_1$--$x_8$ & 零配件 1--8 是否检测 & $\{0,1\}$ & --- \\
+    $x_9$--$x_{11}$ & 半成品 1--3 是否检测 & $\{0,1\}$ & --- \\
+    $x_{12}$--$x_{14}$ & 不合格半成品 1--3 是否拆解 & $\{0,1\}$ & --- \\
+    $x_{15},x_{16}$ & 成品是否检测、不合格成品是否拆解 & $\{0,1\}$ & --- \\
+    $s$ & 零配件或半成品的质量状态 & $\{N,KG,UG,UB\}$ & --- \\
+    $S,S_0$ & 系统状态向量与初始状态 & 11 元组 & --- \\
+    $V_X,C_X$ & 固定策略下从状态 $S$ 出发的期望成本与一步成本 & 非负实数 & 元/件 \\
+    $P_X(S'\!\mid\!S)$ & 固定策略下状态转移概率 & $[0,1]$ & --- \\
+    $E[\Pi(X)]$ & 固定策略 $X$ 的期望利润 & 实数 & 元/件 \\
+    $R,L$ & 市场售价与不合格成品调换损失 & 非负实数 & 元/件 \\
+    $p_i,c_i,t_i$ & 零配件 $i$ 的次品率、购买单价与检测成本 & 非负实数 & 元/件 \\
+    $p_j,a_j,T_j,D_j$ & 半成品 $j$ 的次品率、装配成本、检测成本与拆解费用 & 非负实数 & 元/件 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

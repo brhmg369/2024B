@@ -1,0 +1,97 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="q3-structure" name="Page-1">
+    <mxGraphModel dx="1000" dy="640" grid="1" gridSize="10" guides="1"
+      tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1"
+      pageWidth="1000" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="note" value="质量传递：任一下级输入不合格则上级必不合格；仅当下级全部合格时，上级按给定次品率产生装配缺陷。"
+          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#4D4D4D;"
+          vertex="1" parent="1">
+          <mxGeometry x="30" y="15" width="760" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="零配件1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="30" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="零配件2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="130" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="零配件3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="230" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="零配件4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="330" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p5" value="零配件5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="430" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p6" value="零配件6" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="530" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p7" value="零配件7" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="630" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p8" value="零配件8" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#56B4E9;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="730" y="65" width="80" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="半成品1（零配件1、2、3）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#009E73;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="55" y="300" width="160" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="半成品2（零配件4、5、6）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#009E73;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="375" y="300" width="160" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="半成品3（零配件7、8）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#009E73;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="600" y="300" width="160" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="f" value="成品" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0072B2;strokeColor=#4D4D4D;fontColor=#FFFFFF;fontSize=13;"
+          vertex="1" parent="1">
+          <mxGeometry x="400" y="500" width="160" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="semi-legend" value="半成品检测 $x_9,x_{10},x_{11}$；&#10;不合格半成品拆解 $x_{12},x_{13},x_{14}$"
+          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#4D4D4D;"
+          vertex="1" parent="1">
+          <mxGeometry x="20" y="370" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="final-legend" value="成品检测 $x_{15}$；&#10;不合格成品拆解 $x_{16}$"
+          style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#4D4D4D;"
+          vertex="1" parent="1">
+          <mxGeometry x="590" y="510" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p1" target="s1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p2" target="s1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p3" target="s1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p4" target="s2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p5" target="s2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p6" target="s2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p7" target="s3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="p8" target="s3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="s1" target="f"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="s2" target="f"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#4D4D4D;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" parent="1" source="s3" target="f"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
