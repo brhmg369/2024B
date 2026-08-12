@@ -1,0 +1,17 @@
+﻿ga_runs: 20
+ga_best_strategy: 1111111111111101
+ga_best_expected_cost: 139.777778
+ga_best_expected_profit: 60.222222
+exact_enumeration: 1
+exact_best_strategy: 1111111111111101
+exact_best_expected_cost: 139.777778
+exact_best_expected_profit: 60.222222
+ga_matches_exact_best: 1
+ga_global_hit_count: 20
+ga_global_hit_rate: 1.0
+monte_carlo_checked_strategy: 1111111111111101
+analytic_cost_for_mc_strategy: 139.777778
+mc_expected_cost: 139.61935
+mc_completed_trials: 20000
+mc_failed_trials: 0
+elapsed_seconds: 70.302
