@@ -1,0 +1,8 @@
+﻿problem,case,deterministic_best_strategy,first_stable_n
+q2,1,1101,40
+q2,2,1101,40
+q2,3,1101|1111,40
+q2,4,1111,40
+q2,5,0100,160
+q2,6,0000,120
+q3,,1111111111111101,40

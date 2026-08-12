@@ -2,7 +2,8 @@
 
 This module reuses the production logic of Q2/Q3 without changing their source
 files.  Defect rates are treated as Beta posterior random variables generated
-from the modelling assumption n in {40, 100, 200} and k = n * p_hat.
+from the modelling assumption n in {40, 100, 200, 1000, 10000} and
+k = n * p_hat.
 
 The inner production expectation is analytical.  Posterior sampling is only
 used for parameter uncertainty, and the same posterior scenarios are shared by
@@ -36,6 +37,32 @@ SCENARIOS = 5000
 BASE_SEED = 4024
 Q2_STRATEGY_BITS = 4
 Q3_STRATEGY_BITS = 16
+NOMINAL_RATES = (0.05, 0.10, 0.20)
+DEFAULT_SAMPLE_SIZES = (40, 100, 200, 1000, 10000)
+CRITICAL_SEARCH_GRID = (
+    40,
+    50,
+    60,
+    80,
+    100,
+    120,
+    140,
+    160,
+    180,
+    200,
+    250,
+    300,
+    400,
+    500,
+    750,
+    1000,
+    1500,
+    2000,
+    3000,
+    5000,
+    7500,
+    10000,
+)
 
 
 @dataclass(frozen=True)
@@ -86,6 +113,68 @@ def posterior_spec(rate: float, n: int) -> PosteriorSpec:
     return PosteriorSpec(rate, n, k, k + 1, n - k + 1)
 
 
+def is_valid_common_sample_size(n: int) -> bool:
+    try:
+        for rate in NOMINAL_RATES:
+            posterior_spec(rate, n)
+    except ValueError:
+        return False
+    return True
+
+
+def beta_ppf(probability: float, alpha: int, beta: int) -> float:
+    try:
+        from scipy.stats import beta as beta_distribution
+
+        return float(beta_distribution.ppf(probability, alpha, beta))
+    except Exception:
+        mean = alpha / (alpha + beta)
+        variance = alpha * beta / ((alpha + beta) ** 2 * (alpha + beta + 1))
+        z = 1.959963984540054
+        return min(1.0, max(0.0, mean + z * math.sqrt(variance) * (-1 if probability < 0.5 else 1)))
+
+
+def posterior_statistics(rate: float, n: int) -> dict:
+    spec = posterior_spec(rate, n)
+    total = spec.alpha + spec.beta
+    mean = spec.alpha / total
+    variance = spec.alpha * spec.beta / (total * total * (total + 1))
+    std = math.sqrt(variance)
+    return {
+        "n": n,
+        "nominal_rate": rate,
+        "k": spec.k,
+        "alpha": spec.alpha,
+        "beta": spec.beta,
+        "posterior_mean": mean,
+        "posterior_std": std,
+        "ci95_lower": beta_ppf(0.025, spec.alpha, spec.beta),
+        "ci95_upper": beta_ppf(0.975, spec.alpha, spec.beta),
+        "mean_minus_nominal": mean - rate,
+    }
+
+
+def build_posterior_statistics_rows(sample_sizes: list[int]) -> list[dict]:
+    rows: list[dict] = []
+    for n in sample_sizes:
+        for rate in NOMINAL_RATES:
+            row = posterior_statistics(rate, n)
+            rows.append(
+                {
+                    "n": row["n"],
+                    "nominal_rate": row["nominal_rate"],
+                    "k": row["k"],
+                    "posterior": f"Beta({row['alpha']},{row['beta']})",
+                    "posterior_mean": finite_round(row["posterior_mean"], 10),
+                    "posterior_std": finite_round(row["posterior_std"], 10),
+                    "ci95_lower": finite_round(row["ci95_lower"], 10),
+                    "ci95_upper": finite_round(row["ci95_upper"], 10),
+                    "mean_minus_nominal": finite_round(row["mean_minus_nominal"], 10),
+                }
+            )
+    return rows
+
+
 def sample_beta(rate: float, n: int, size: int, rng: np.random.Generator) -> np.ndarray:
     spec = posterior_spec(rate, n)
     return rng.beta(spec.alpha, spec.beta, size=size)
@@ -117,8 +206,13 @@ def write_csv(path: Path, rows: list[dict]) -> None:
     if not rows:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames: list[str] = []
+    for row in rows:
+        for key in row:
+            if key not in fieldnames:
+                fieldnames.append(key)
     with path.open("w", newline="", encoding="utf-8-sig") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
@@ -201,6 +295,20 @@ def q2_fixed_profit(
     return summarize_profit(q2_profit_scenarios(strategy, params, scenarios))
 
 
+def deterministic_q2_best_by_case(tolerance: float = 1e-9) -> dict[int, tuple[str, ...]]:
+    best: dict[int, tuple[str, ...]] = {}
+    for params in q2.CASES:
+        rows = []
+        for strategy in iter_bits(Q2_STRATEGY_BITS):
+            summary = q2_fixed_profit(strategy, params)
+            rows.append((summary.mean, strategy_code(strategy)))
+        best_profit = max(value for value, _ in rows)
+        best[params.case] = tuple(
+            code for value, code in rows if abs(value - best_profit) <= tolerance
+        )
+    return best
+
+
 def evaluate_q2_case(
     params: q2.CaseParams,
     n: int,
@@ -244,6 +352,7 @@ def evaluate_q2_case(
         "bayes_best_expected_profit": bayes_best["bayes_expected_profit"],
         "bayes_profit_sd": bayes_best["bayes_profit_sd"],
         "bayes_profit_q05": bayes_best["bayes_profit_q05"],
+        "matches_fixed_best": int(fixed_best["strategy"] == bayes_best["strategy"]),
         "strategy_changed": int(fixed_best["strategy"] != bayes_best["strategy"]),
     }
     return rows, best
@@ -387,6 +496,23 @@ def q3_fixed_summary(strategy: tuple[int, ...]) -> ScenarioSummary:
         "final": np.array([q3.TABLE2.final_defect], dtype=float),
     }
     return summarize_profit(q3_profit_scenarios(strategy, scenarios))
+
+
+def deterministic_q3_best(tolerance: float = 1e-9) -> tuple[str, ...]:
+    best_profit = -math.inf
+    rows: list[tuple[float, str]] = []
+    scenarios = {
+        "parts": np.array(q3.TABLE2.part_defect, dtype=float).reshape(8, 1),
+        "semis": np.array(q3.TABLE2.semi_defect, dtype=float).reshape(3, 1),
+        "final": np.array([q3.TABLE2.final_defect], dtype=float),
+    }
+    group_cache = build_group_cache(scenarios)
+    for bits in iter_bits(Q3_STRATEGY_BITS):
+        summary = q3_eval_summary(bits, scenarios, group_cache, risk=False)
+        if summary.mean > best_profit:
+            best_profit = summary.mean
+        rows.append((summary.mean, strategy_code(bits)))
+    return tuple(code for value, code in rows if abs(value - best_profit) <= tolerance)
 
 
 def q3_eval_summary(
@@ -620,8 +746,69 @@ def build_posterior_specs(n: int) -> list[dict]:
             "k": posterior_spec(rate, n).k,
             "posterior": f"Beta({posterior_spec(rate, n).alpha},{posterior_spec(rate, n).beta})",
         }
-        for rate in (0.05, 0.10, 0.20)
+        for rate in NOMINAL_RATES
     ]
+
+
+def find_first_stable_n(
+    rows: list[dict],
+    deterministic_strategies: tuple[str, ...],
+    *,
+    problem: str,
+    case: int | str = "",
+) -> int | None:
+    selected = [
+        row
+        for row in rows
+        if row["problem"] == problem
+        and str(row.get("case", "")) == str(case)
+    ]
+    selected.sort(key=lambda row: int(row["n"]))
+    for idx, row in enumerate(selected):
+        if row["best_strategy"] not in deterministic_strategies:
+            continue
+        if all(item["best_strategy"] in deterministic_strategies for item in selected[idx:]):
+            return int(row["n"])
+    return None
+
+
+def build_critical_rows(
+    q2_rows: list[dict],
+    q3_rows: list[dict],
+    q2_fixed_best: dict[int, tuple[str, ...]],
+    q3_fixed_best: tuple[str, ...],
+) -> list[dict]:
+    rows = []
+    for case in sorted(q2_fixed_best):
+        threshold = find_first_stable_n(
+            q2_rows,
+            q2_fixed_best[case],
+            problem="q2",
+            case=case,
+        )
+        rows.append(
+            {
+                "problem": "q2",
+                "case": case,
+                "deterministic_best_strategy": "|".join(q2_fixed_best[case]),
+                "first_stable_n": "" if threshold is None else threshold,
+            }
+        )
+    threshold = find_first_stable_n(
+        q3_rows,
+        q3_fixed_best,
+        problem="q3",
+        case="",
+    )
+    rows.append(
+        {
+            "problem": "q3",
+            "case": "",
+            "deterministic_best_strategy": "|".join(q3_fixed_best),
+            "first_stable_n": "" if threshold is None else threshold,
+        }
+    )
+    return rows
 
 
 def solve_q4(
@@ -637,10 +824,17 @@ def solve_q4(
 ) -> dict:
     started = time.perf_counter()
     main_n = sample_sizes[0]
+    invalid_n = [n for n in sample_sizes if not is_valid_common_sample_size(n)]
+    if invalid_n:
+        raise ValueError(f"invalid sample sizes for all nominal rates: {invalid_n}")
 
     q2_all_rows: list[dict] = []
     q2_best_rows: list[dict] = []
     q2_sensitivity_rows: list[dict] = []
+    q3_sensitivity_rows: list[dict] = []
+    posterior_rows = build_posterior_statistics_rows(sample_sizes)
+    q2_fixed_best = deterministic_q2_best_by_case()
+    q3_fixed_best = deterministic_q3_best()
 
     for n in sample_sizes:
         for params in q2.CASES:
@@ -657,6 +851,10 @@ def solve_q4(
                     "best_expected_profit": best["bayes_best_expected_profit"],
                     "profit_sd": best["bayes_profit_sd"],
                     "profit_q05": best["bayes_profit_q05"],
+                    "deterministic_best_strategy": "|".join(q2_fixed_best[params.case]),
+                    "matches_deterministic_best": int(
+                        best["bayes_best_strategy"] in q2_fixed_best[params.case]
+                    ),
                     "changed_from_n40": "",
                 }
             )
@@ -669,22 +867,6 @@ def solve_q4(
         "final": np.array([q3.TABLE2.final_defect], dtype=float),
     }
     q3_fixed_cache = build_group_cache(q3_fixed_scenarios)
-    shared_cache: dict[tuple[int, ...], ScenarioSummary] = {}
-    ga_rows = [
-        q3_run_ga(
-            q3_main_scenarios,
-            q3_main_cache,
-            shared_cache,
-            seed=BASE_SEED + run,
-            population_size=population_size,
-            generations=generations,
-            crossover_rate=crossover_rate,
-            mutation_rate=mutation_rate,
-            elite_size=elite_size,
-        )
-        for run in range(ga_runs)
-    ]
-
     q3_rows = q3_enumerate_bayes(
         q3_main_scenarios,
         q3_main_cache,
@@ -693,18 +875,16 @@ def solve_q4(
     )
     q3_top10 = q3_top_rows(q3_rows, q3_main_scenarios, q3_main_cache, 10)
     exact_best = q3_top10[0]
-    ga_best = max(ga_rows, key=lambda row: row["best_expected_profit"])
-    ga_hit_count = sum(
-        1
-        for row in ga_rows
-        if row["best_strategy"] == exact_best["strategy"]
-        and abs(row["best_expected_profit"] - exact_best["bayes_expected_profit"]) <= 1e-7
-    )
+    all_ga_rows: list[dict] = []
+    main_ga_best: dict | None = None
+    main_ga_hit_count = 0
 
-    q3_sensitivity_rows: list[dict] = []
     n40_strategy = exact_best["strategy"]
     for n in sample_sizes:
         if n == main_n:
+            scenarios = q3_main_scenarios
+            group_cache = q3_main_cache
+            rows = q3_rows
             best = exact_best
         else:
             scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n)
@@ -716,15 +896,51 @@ def solve_q4(
                 q3_fixed_cache,
             )
             best = q3_top_rows(rows, scenarios, group_cache, 1)[0]
+        shared_cache: dict[tuple[int, ...], ScenarioSummary] = {}
+        ga_rows = [
+            {
+                "n": n,
+                **q3_run_ga(
+                    scenarios,
+                    group_cache,
+                    shared_cache,
+                    seed=BASE_SEED + n + run,
+                    population_size=population_size,
+                    generations=generations,
+                    crossover_rate=crossover_rate,
+                    mutation_rate=mutation_rate,
+                    elite_size=elite_size,
+                ),
+            }
+            for run in range(ga_runs)
+        ]
+        all_ga_rows.extend(ga_rows)
+        ga_best = max(ga_rows, key=lambda row: row["best_expected_profit"])
+        ga_hit_count = sum(
+            1
+            for row in ga_rows
+            if row["best_strategy"] == best["strategy"]
+            and abs(row["best_expected_profit"] - best["bayes_expected_profit"]) <= 1e-7
+        )
+        if n == main_n:
+            main_ga_best = ga_best
+            main_ga_hit_count = ga_hit_count
         q3_sensitivity_rows.append(
             {
                 "problem": "q3",
                 "case": "",
                 "n": n,
+                "ga_best_strategy": ga_best["best_strategy"],
+                "exact_best_strategy": best["strategy"],
+                "ga_matches_exact": int(ga_best["best_strategy"] == best["strategy"]),
+                "ga_hit_count": ga_hit_count,
+                "ga_hit_rate": ga_hit_count / ga_runs,
                 "best_strategy": best["strategy"],
                 "best_expected_profit": best["bayes_expected_profit"],
                 "profit_sd": best["bayes_profit_sd"],
                 "profit_q05": best["bayes_profit_q05"],
+                "deterministic_best_strategy": "|".join(q3_fixed_best),
+                "matches_deterministic_best": int(best["strategy"] in q3_fixed_best),
                 "changed_from_n40": int(best["strategy"] != n40_strategy),
             }
         )
@@ -737,40 +953,126 @@ def solve_q4(
     for row in q2_sensitivity_rows:
         row["changed_from_n40"] = int(row["best_strategy"] != q2_n40_best[row["case"]])
 
+    critical_sample_sizes = sorted(
+        {
+            n
+            for n in list(sample_sizes) + list(CRITICAL_SEARCH_GRID)
+            if n >= min(sample_sizes) and is_valid_common_sample_size(n)
+        }
+    )
+    q2_critical_rows: list[dict] = []
+    q3_critical_rows: list[dict] = []
+    completed_q3_critical = {int(row["n"]) for row in q3_sensitivity_rows}
+
+    for n in critical_sample_sizes:
+        if n not in {int(row["n"]) for row in q2_sensitivity_rows}:
+            for params in q2.CASES:
+                _, best = evaluate_q2_case(params, n, scenarios_count, BASE_SEED + n)
+                q2_critical_rows.append(
+                    {
+                        "problem": "q2",
+                        "case": params.case,
+                        "n": n,
+                        "best_strategy": best["bayes_best_strategy"],
+                    }
+                )
+
+        if n not in completed_q3_critical:
+            scenarios = q3_scenarios(n, scenarios_count, BASE_SEED + n)
+            group_cache = build_group_cache(scenarios)
+            rows = q3_enumerate_bayes(
+                scenarios,
+                group_cache,
+                q3_fixed_scenarios,
+                q3_fixed_cache,
+            )
+            best = q3_top_rows(rows, scenarios, group_cache, 1)[0]
+            q3_critical_rows.append(
+                {
+                    "problem": "q3",
+                    "case": "",
+                    "n": n,
+                    "best_strategy": best["strategy"],
+                }
+            )
+
+    q2_threshold_input = [
+        {
+            "problem": row["problem"],
+            "case": row["case"],
+            "n": row["n"],
+            "best_strategy": row["best_strategy"],
+        }
+        for row in q2_sensitivity_rows
+    ] + q2_critical_rows
+    q3_threshold_input = [
+        {
+            "problem": row["problem"],
+            "case": row["case"],
+            "n": row["n"],
+            "best_strategy": row["best_strategy"],
+        }
+        for row in q3_sensitivity_rows
+    ] + q3_critical_rows
+    critical_rows = build_critical_rows(
+        q2_threshold_input,
+        q3_threshold_input,
+        q2_fixed_best,
+        q3_fixed_best,
+    )
+
     fixed_q3_best = max(
         (row for row in q3_rows if row["feasible_fixed"]),
         key=lambda row: row["fixed_expected_profit"],
     )
+    if main_ga_best is None:
+        raise RuntimeError("main GA result was not computed")
 
     summary = {
         "method": "Beta posterior scenarios + analytical production expectation + GA + exact enumeration",
         "posterior_assumption": "Table rates are independent sample defect rates with uniform prior; n=40 is the main modelling assumption.",
         "scenario_count": scenarios_count,
         "main_sample_size": main_n,
+        "sample_sizes": sample_sizes,
         "posterior_specs_n40": build_posterior_specs(main_n),
+        "posterior_statistics": posterior_rows,
         "q2_fixed16_note": "Q2 output enumerates the requested fixed 4-bit restricted strategies; the repository's formal Q2 model remains a state-dependent belief MDP.",
         "q2_best": q2_best_rows,
+        "q2_critical_sample_sizes": [
+            row for row in critical_rows if row["problem"] == "q2"
+        ],
         "q3_fixed_best_strategy": fixed_q3_best["strategy"],
         "q3_fixed_best_expected_profit": fixed_q3_best["fixed_expected_profit"],
-        "q3_ga_best_strategy": ga_best["best_strategy"],
-        "q3_ga_best_expected_profit": ga_best["best_expected_profit"],
+        "q3_ga_best_strategy": main_ga_best["best_strategy"],
+        "q3_ga_best_expected_profit": main_ga_best["best_expected_profit"],
         "q3_exact_best_strategy": exact_best["strategy"],
         "q3_exact_best_expected_profit": exact_best["bayes_expected_profit"],
         "q3_exact_best_profit_sd": exact_best["bayes_profit_sd"],
         "q3_exact_best_profit_q05": exact_best["bayes_profit_q05"],
-        "q3_ga_matches_exact": int(ga_best["best_strategy"] == exact_best["strategy"]),
-        "q3_ga_hit_count": ga_hit_count,
-        "q3_ga_hit_rate": ga_hit_count / ga_runs,
+        "q3_ga_matches_exact": int(main_ga_best["best_strategy"] == exact_best["strategy"]),
+        "q3_ga_hit_count": main_ga_hit_count,
+        "q3_ga_hit_rate": main_ga_hit_count / ga_runs,
         "q3_decoded_exact_best": q3.decode_strategy(exact_best["strategy"]),
+        "q3_sensitivity": q3_sensitivity_rows,
+        "q3_critical_sample_size": next(
+            (
+                row["first_stable_n"]
+                for row in critical_rows
+                if row["problem"] == "q3"
+            ),
+            "",
+        ),
         "elapsed_seconds": round(time.perf_counter() - started, 3),
     }
 
+    write_csv(output_dir / "q4_posterior_stats.csv", posterior_rows)
     write_csv(output_dir / "q4_q2_policy_results.csv", q2_all_rows)
     write_csv(output_dir / "q4_q2_best_policies.csv", q2_best_rows)
-    write_csv(output_dir / "q4_q3_ga_runs.csv", ga_rows)
+    write_csv(output_dir / "q4_q3_ga_runs.csv", all_ga_rows)
     write_csv(output_dir / "q4_q3_exact_all_strategies.csv", q3_rows)
     write_csv(output_dir / "q4_q3_top10_strategies.csv", q3_top10)
     write_csv(output_dir / "q4_sensitivity.csv", q2_sensitivity_rows + q3_sensitivity_rows)
+    write_csv(output_dir / "q4_critical_sample_sizes.csv", critical_rows)
     write_json(output_dir / "q4_summary.json", summary)
 
     return {
@@ -784,7 +1086,7 @@ def solve_q4(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Solve Question 4 Bayesian uncertainty model.")
     parser.add_argument("--scenarios", type=int, default=SCENARIOS)
-    parser.add_argument("--sample-sizes", type=int, nargs="+", default=[40, 100, 200])
+    parser.add_argument("--sample-sizes", type=int, nargs="+", default=list(DEFAULT_SAMPLE_SIZES))
     parser.add_argument("--ga-runs", type=int, default=20)
     parser.add_argument("--population-size", type=int, default=100)
     parser.add_argument("--generations", type=int, default=200)

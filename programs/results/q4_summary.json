@@ -1,8 +1,15 @@
 {
   "method": "Beta posterior scenarios + analytical production expectation + GA + exact enumeration",
   "posterior_assumption": "Table rates are independent sample defect rates with uniform prior; n=40 is the main modelling assumption.",
-  "scenario_count": 5000,
+  "scenario_count": 10000,
   "main_sample_size": 40,
+  "sample_sizes": [
+    40,
+    100,
+    200,
+    1000,
+    10000
+  ],
   "posterior_specs_n40": [
     {
       "nominal_rate": 0.05,
@@ -23,6 +30,173 @@
       "posterior": "Beta(9,33)"
     }
   ],
+  "posterior_statistics": [
+    {
+      "n": 40,
+      "nominal_rate": 0.05,
+      "k": 2,
+      "posterior": "Beta(3,39)",
+      "posterior_mean": 0.0714285714,
+      "posterior_std": 0.0392743868,
+      "ci95_lower": 0.0153514715,
+      "ci95_upper": 0.1653333534,
+      "mean_minus_nominal": 0.0214285714
+    },
+    {
+      "n": 40,
+      "nominal_rate": 0.1,
+      "k": 4,
+      "posterior": "Beta(5,37)",
+      "posterior_mean": 0.119047619,
+      "posterior_std": 0.0493858287,
+      "ci95_lower": 0.0408067262,
+      "ci95_upper": 0.2313145493,
+      "mean_minus_nominal": 0.019047619
+    },
+    {
+      "n": 40,
+      "nominal_rate": 0.2,
+      "k": 8,
+      "posterior": "Beta(9,33)",
+      "posterior_mean": 0.2142857143,
+      "posterior_std": 0.0625741136,
+      "ci95_lower": 0.1056080332,
+      "ci95_upper": 0.3486654675,
+      "mean_minus_nominal": 0.0142857143
+    },
+    {
+      "n": 100,
+      "nominal_rate": 0.05,
+      "k": 5,
+      "posterior": "Beta(6,96)",
+      "posterior_mean": 0.0588235294,
+      "posterior_std": 0.0231842183,
+      "ci95_lower": 0.0221105724,
+      "ci95_upper": 0.1117550586,
+      "mean_minus_nominal": 0.0088235294
+    },
+    {
+      "n": 100,
+      "nominal_rate": 0.1,
+      "k": 10,
+      "posterior": "Beta(11,91)",
+      "posterior_mean": 0.1078431373,
+      "posterior_std": 0.03056316,
+      "ci95_lower": 0.0556372238,
+      "ci95_upper": 0.1745528261,
+      "mean_minus_nominal": 0.0078431373
+    },
+    {
+      "n": 100,
+      "nominal_rate": 0.2,
+      "k": 20,
+      "posterior": "Beta(21,81)",
+      "posterior_mean": 0.2058823529,
+      "posterior_std": 0.0398412882,
+      "ci95_lower": 0.1335547103,
+      "ci95_upper": 0.2891228982,
+      "mean_minus_nominal": 0.0058823529
+    },
+    {
+      "n": 200,
+      "nominal_rate": 0.05,
+      "k": 10,
+      "posterior": "Beta(11,191)",
+      "posterior_mean": 0.0544554455,
+      "posterior_std": 0.015926254,
+      "ci95_lower": 0.0276324822,
+      "ci95_upper": 0.0895891442,
+      "mean_minus_nominal": 0.0044554455
+    },
+    {
+      "n": 200,
+      "nominal_rate": 0.1,
+      "k": 20,
+      "posterior": "Beta(21,181)",
+      "posterior_mean": 0.103960396,
+      "posterior_std": 0.0214214836,
+      "ci95_lower": 0.0658458579,
+      "ci95_upper": 0.1494865335,
+      "mean_minus_nominal": 0.003960396
+    },
+    {
+      "n": 200,
+      "nominal_rate": 0.2,
+      "k": 40,
+      "posterior": "Beta(41,161)",
+      "posterior_mean": 0.202970297,
+      "posterior_std": 0.028229649,
+      "ci95_lower": 0.1505352868,
+      "ci95_upper": 0.2609733358,
+      "mean_minus_nominal": 0.002970297
+    },
+    {
+      "n": 1000,
+      "nominal_rate": 0.05,
+      "k": 50,
+      "posterior": "Beta(51,951)",
+      "posterior_mean": 0.0508982036,
+      "posterior_std": 0.0069399631,
+      "ci95_lower": 0.0381668337,
+      "ci95_upper": 0.0653256937,
+      "mean_minus_nominal": 0.0008982036
+    },
+    {
+      "n": 1000,
+      "nominal_rate": 0.1,
+      "k": 100,
+      "posterior": "Beta(101,901)",
+      "posterior_mean": 0.1007984032,
+      "posterior_std": 0.0095061551,
+      "ci95_lower": 0.0829363985,
+      "ci95_upper": 0.1201691299,
+      "mean_minus_nominal": 0.0007984032
+    },
+    {
+      "n": 1000,
+      "nominal_rate": 0.2,
+      "k": 200,
+      "posterior": "Beta(201,801)",
+      "posterior_mean": 0.2005988024,
+      "posterior_std": 0.0126443381,
+      "ci95_lower": 0.1763923775,
+      "ci95_upper": 0.2259371611,
+      "mean_minus_nominal": 0.0005988024
+    },
+    {
+      "n": 10000,
+      "nominal_rate": 0.05,
+      "k": 500,
+      "posterior": "Beta(501,9501)",
+      "posterior_mean": 0.050089982,
+      "posterior_std": 0.0021809793,
+      "ci95_lower": 0.0459012686,
+      "ci95_upper": 0.0544490949,
+      "mean_minus_nominal": 8.9982e-05
+    },
+    {
+      "n": 10000,
+      "nominal_rate": 0.1,
+      "k": 1000,
+      "posterior": "Beta(1001,9001)",
+      "posterior_mean": 0.100079984,
+      "posterior_std": 0.0030006161,
+      "ci95_lower": 0.0942751131,
+      "ci95_upper": 0.106036332,
+      "mean_minus_nominal": 7.9984e-05
+    },
+    {
+      "n": 10000,
+      "nominal_rate": 0.2,
+      "k": 2000,
+      "posterior": "Beta(2001,8001)",
+      "posterior_mean": 0.200059988,
+      "posterior_std": 0.0039998499,
+      "ci95_lower": 0.1922775516,
+      "ci95_upper": 0.2079560361,
+      "mean_minus_nominal": 5.9988e-05
+    }
+  ],
   "q2_fixed16_note": "Q2 output enumerates the requested fixed 4-bit restricted strategies; the repository's formal Q2 model remains a state-dependent belief MDP.",
   "q2_best": [
     {
@@ -31,9 +205,10 @@
       "fixed_best_strategy": "1101",
       "fixed_best_expected_profit": 18.111111,
       "bayes_best_strategy": "1101",
-      "bayes_best_expected_profit": 16.910951,
-      "bayes_profit_sd": 1.85618,
-      "bayes_profit_q05": 13.485334,
+      "bayes_best_expected_profit": 16.899511,
+      "bayes_profit_sd": 1.876434,
+      "bayes_profit_q05": 13.444845,
+      "matches_fixed_best": 1,
       "strategy_changed": 0
     },
     {
@@ -42,9 +217,10 @@
       "fixed_best_strategy": "1101",
       "fixed_best_expected_profit": 12.0,
       "bayes_best_strategy": "1101",
-      "bayes_best_expected_profit": 10.525612,
-      "bayes_profit_sd": 3.042806,
-      "bayes_profit_q05": 5.024039,
+      "bayes_best_expected_profit": 10.517642,
+      "bayes_profit_sd": 3.04667,
+      "bayes_profit_q05": 5.054317,
+      "matches_fixed_best": 1,
       "strategy_changed": 0
     },
     {
@@ -53,9 +229,10 @@
       "fixed_best_strategy": "1101",
       "fixed_best_expected_profit": 15.444444,
       "bayes_best_strategy": "1111",
-      "bayes_best_expected_profit": 14.274183,
-      "bayes_profit_sd": 1.749813,
-      "bayes_profit_q05": 11.108482,
+      "bayes_best_expected_profit": 14.292248,
+      "bayes_profit_sd": 1.752251,
+      "bayes_profit_q05": 11.152503,
+      "matches_fixed_best": 0,
       "strategy_changed": 1
     },
     {
@@ -64,9 +241,10 @@
       "fixed_best_strategy": "1111",
       "fixed_best_expected_profit": 14.75,
       "bayes_best_strategy": "1111",
-      "bayes_best_expected_profit": 13.58121,
-      "bayes_profit_sd": 2.567216,
-      "bayes_profit_q05": 8.931681,
+      "bayes_best_expected_profit": 13.606257,
+      "bayes_profit_sd": 2.52903,
+      "bayes_profit_q05": 9.096517,
+      "matches_fixed_best": 1,
       "strategy_changed": 0
     },
     {
@@ -75,9 +253,10 @@
       "fixed_best_strategy": "0100",
       "fixed_best_expected_profit": 11.987654,
       "bayes_best_strategy": "1101",
-      "bayes_best_expected_profit": 9.023173,
-      "bayes_profit_sd": 2.662232,
-      "bayes_profit_q05": 4.230436,
+      "bayes_best_expected_profit": 9.076871,
+      "bayes_profit_sd": 2.595229,
+      "bayes_profit_q05": 4.380531,
+      "matches_fixed_best": 0,
       "strategy_changed": 1
     },
     {
@@ -86,20 +265,59 @@
       "fixed_best_strategy": "0000",
       "fixed_best_expected_profit": 21.67867,
       "bayes_best_strategy": "1000",
-      "bayes_best_expected_profit": 18.86461,
-      "bayes_profit_sd": 2.97227,
-      "bayes_profit_q05": 13.206789,
+      "bayes_best_expected_profit": 18.923765,
+      "bayes_profit_sd": 2.950213,
+      "bayes_profit_q05": 13.459772,
+      "matches_fixed_best": 0,
       "strategy_changed": 1
+    }
+  ],
+  "q2_critical_sample_sizes": [
+    {
+      "problem": "q2",
+      "case": 1,
+      "deterministic_best_strategy": "1101",
+      "first_stable_n": 40
+    },
+    {
+      "problem": "q2",
+      "case": 2,
+      "deterministic_best_strategy": "1101",
+      "first_stable_n": 40
+    },
+    {
+      "problem": "q2",
+      "case": 3,
+      "deterministic_best_strategy": "1101|1111",
+      "first_stable_n": 40
+    },
+    {
+      "problem": "q2",
+      "case": 4,
+      "deterministic_best_strategy": "1111",
+      "first_stable_n": 40
+    },
+    {
+      "problem": "q2",
+      "case": 5,
+      "deterministic_best_strategy": "0100",
+      "first_stable_n": 160
+    },
+    {
+      "problem": "q2",
+      "case": 6,
+      "deterministic_best_strategy": "0000",
+      "first_stable_n": 120
     }
   ],
   "q3_fixed_best_strategy": "1111111111111101",
   "q3_fixed_best_expected_profit": 60.222222,
   "q3_ga_best_strategy": "1111111111111101",
-  "q3_ga_best_expected_profit": 55.057279,
+  "q3_ga_best_expected_profit": 55.031052,
   "q3_exact_best_strategy": "1111111111111101",
-  "q3_exact_best_expected_profit": 55.057279,
-  "q3_exact_best_profit_sd": 4.859284,
-  "q3_exact_best_profit_q05": 46.3376,
+  "q3_exact_best_expected_profit": 55.031052,
+  "q3_exact_best_profit_sd": 4.871913,
+  "q3_exact_best_profit_q05": 46.337213,
   "q3_ga_matches_exact": 1,
   "q3_ga_hit_count": 20,
   "q3_ga_hit_rate": 1.0,
@@ -121,5 +339,93 @@
     "finished_product_inspection": "no_inspection",
     "defective_finished_product": "disassemble"
   },
-  "elapsed_seconds": 5.153
+  "q3_sensitivity": [
+    {
+      "problem": "q3",
+      "case": "",
+      "n": 40,
+      "ga_best_strategy": "1111111111111101",
+      "exact_best_strategy": "1111111111111101",
+      "ga_matches_exact": 1,
+      "ga_hit_count": 20,
+      "ga_hit_rate": 1.0,
+      "best_strategy": "1111111111111101",
+      "best_expected_profit": 55.031052,
+      "profit_sd": 4.871913,
+      "profit_q05": 46.337213,
+      "deterministic_best_strategy": "1111111111111101",
+      "matches_deterministic_best": 1,
+      "changed_from_n40": 0
+    },
+    {
+      "problem": "q3",
+      "case": "",
+      "n": 100,
+      "ga_best_strategy": "1111111111111101",
+      "exact_best_strategy": "1111111111111101",
+      "ga_matches_exact": 1,
+      "ga_hit_count": 20,
+      "ga_hit_rate": 1.0,
+      "best_strategy": "1111111111111101",
+      "best_expected_profit": 58.122581,
+      "profit_sd": 2.833641,
+      "profit_q05": 53.266722,
+      "deterministic_best_strategy": "1111111111111101",
+      "matches_deterministic_best": 1,
+      "changed_from_n40": 0
+    },
+    {
+      "problem": "q3",
+      "case": "",
+      "n": 200,
+      "ga_best_strategy": "1111111111111101",
+      "exact_best_strategy": "1111111111111101",
+      "ga_matches_exact": 1,
+      "ga_hit_count": 20,
+      "ga_hit_rate": 1.0,
+      "best_strategy": "1111111111111101",
+      "best_expected_profit": 59.174028,
+      "profit_sd": 1.956539,
+      "profit_q05": 55.81245,
+      "deterministic_best_strategy": "1111111111111101",
+      "matches_deterministic_best": 1,
+      "changed_from_n40": 0
+    },
+    {
+      "problem": "q3",
+      "case": "",
+      "n": 1000,
+      "ga_best_strategy": "1111111111111101",
+      "exact_best_strategy": "1111111111111101",
+      "ga_matches_exact": 1,
+      "ga_hit_count": 20,
+      "ga_hit_rate": 1.0,
+      "best_strategy": "1111111111111101",
+      "best_expected_profit": 59.999933,
+      "profit_sd": 0.850409,
+      "profit_q05": 58.564112,
+      "deterministic_best_strategy": "1111111111111101",
+      "matches_deterministic_best": 1,
+      "changed_from_n40": 0
+    },
+    {
+      "problem": "q3",
+      "case": "",
+      "n": 10000,
+      "ga_best_strategy": "1111111111111101",
+      "exact_best_strategy": "1111111111111101",
+      "ga_matches_exact": 1,
+      "ga_hit_count": 20,
+      "ga_hit_rate": 1.0,
+      "best_strategy": "1111111111111101",
+      "best_expected_profit": 60.201841,
+      "profit_sd": 0.268725,
+      "profit_q05": 59.755493,
+      "deterministic_best_strategy": "1111111111111101",
+      "matches_deterministic_best": 1,
+      "changed_from_n40": 0
+    }
+  ],
+  "q3_critical_sample_size": 40,
+  "elapsed_seconds": 39.333
 }
