@@ -1,11 +1,19 @@
-"""Question 2 compressed decision model.
+"""Question 2 decision model with recovered-part inspection modes.
+
+Part policy modes:
+0. first_inspect: inspect the part before the first assembly; after disassembly
+   this part is known qualified, so it is not inspected again.
+1. never_inspect: do not inspect before assembly, and do not inspect after
+   disassembly.
+2. inspect_after_recovery: do not inspect before assembly, but inspect this
+   recovered part after disassembly.
 
 Workflow used for the handoff:
-1. Enumerate four part-inspection policies (x1, x2).
-2. Compute the corresponding finished-product defect probability q.
+1. Enumerate 3 x 3 part policies.
+2. Compute the initial finished-product defect probability q.
 3. Decide finished-product inspection by the local rule t_f < q L.
 4. Enumerate disassembly z = 0, 1.
-5. Compute total expected cost and expected profit, then compare globally.
+5. Compute total expected cost and expected profit by a finite-state recursion.
 
 Cost unit: expected total cost to finally deliver one qualified finished product.
 Profit unit: sale price minus expected cost.
@@ -17,6 +25,23 @@ from dataclasses import dataclass
 from itertools import product
 from pathlib import Path
 import csv
+import math
+
+
+NONE = "none"
+KNOWN_GOOD = "known_good"
+RECOVERED_GOOD = "recovered_good"
+RECOVERED_BAD = "recovered_bad"
+
+PART_MODES = {
+    0: "first_inspect",
+    1: "never_inspect",
+    2: "inspect_after_recovery",
+}
+
+STATUSES = [NONE, KNOWN_GOOD, RECOVERED_GOOD, RECOVERED_BAD]
+STATES = [(s1, s2) for s1 in STATUSES for s2 in STATUSES]
+STATE_INDEX = {state: i for i, state in enumerate(STATES)}
 
 
 @dataclass(frozen=True)
@@ -46,92 +71,226 @@ CASES = [
 ]
 
 
-def inspected_part_cost(price: float, test_cost: float, defect_rate: float) -> float:
-    """Expected cost of obtaining one qualified inspected part."""
+def solve_linear_system(matrix: list[list[float]], rhs: list[float]) -> list[float]:
+    """Solve Ax=b with Gaussian elimination and partial pivoting."""
+    n = len(rhs)
+    a = [row[:] + [rhs[i]] for i, row in enumerate(matrix)]
+
+    for col in range(n):
+        pivot = max(range(col, n), key=lambda row: abs(a[row][col]))
+        if abs(a[pivot][col]) < 1e-12:
+            raise ValueError("singular system")
+        if pivot != col:
+            a[col], a[pivot] = a[pivot], a[col]
+
+        pivot_value = a[col][col]
+        for j in range(col, n + 1):
+            a[col][j] /= pivot_value
+
+        for row in range(n):
+            if row == col:
+                continue
+            factor = a[row][col]
+            if abs(factor) < 1e-15:
+                continue
+            for j in range(col, n + 1):
+                a[row][j] -= factor * a[col][j]
+
+    return [a[i][n] for i in range(n)]
+
+
+def part_params(params: CaseParams, part: int) -> tuple[float, float, float]:
+    if part == 1:
+        return params.p1, params.c1, params.t1
+    return params.p2, params.c2, params.t2
+
+
+def expected_inspected_new_cost(price: float, test_cost: float, defect_rate: float) -> float:
     return (price + test_cost) / (1 - defect_rate)
 
 
-def part_entry_cost_and_quality(
-    inspect: int,
-    price: float,
-    test_cost: float,
-    defect_rate: float,
-) -> tuple[float, float]:
-    """Return expected entry cost K_i and qualified probability u_i."""
-    if inspect:
-        return inspected_part_cost(price, test_cost, defect_rate), 1.0
-    return price, 1 - defect_rate
+def acquire_new_options(params: CaseParams, part: int, mode: int):
+    """Return options: probability, cost, actual_good, known_good."""
+    p, c, t = part_params(params, part)
+    if mode == 0:
+        return [(1.0, expected_inspected_new_cost(c, t, p), True, True)]
+    return [
+        (1 - p, c, True, False),
+        (p, c, False, False),
+    ]
 
 
-def recovered_part_value(
-    inspect: int,
-    entry_cost: float,
-    entry_good_prob: float,
-    product_good_prob: float,
-    product_bad_prob: float,
-) -> float:
-    """Approximate value of a part recovered from a defective product.
+def use_component_options(params: CaseParams, part: int, mode: int, status: str):
+    """Return options: probability, cost, actual_good, known_good."""
+    p, _, t = part_params(params, part)
 
-    If a part was inspected before assembly, it is certainly qualified and keeps
-    its full replacement value. If not, use the conditional probability that it
-    is actually qualified given that the finished product is defective.
-    """
-    if inspect:
-        return entry_cost
-    if product_bad_prob <= 0:
-        return 0.0
-    conditional_good_prob = (entry_good_prob - product_good_prob) / product_bad_prob
-    return max(0.0, conditional_good_prob * entry_cost)
+    if status == NONE:
+        return acquire_new_options(params, part, mode)
+
+    if status == KNOWN_GOOD:
+        return [(1.0, 0.0, True, True)]
+
+    if status == RECOVERED_GOOD:
+        if mode == 2:
+            return [(1.0, t, True, True)]
+        return [(1.0, 0.0, True, False)]
+
+    if status == RECOVERED_BAD:
+        if mode == 2:
+            # Pay recovery inspection, discard the bad part, then acquire a new
+            # part according to the initial mode. Mode 2 means new parts are not
+            # inspected before assembly.
+            return [
+                (prob, t + cost, good, known)
+                for prob, cost, good, known in acquire_new_options(params, part, mode)
+            ]
+        return [(1.0, 0.0, False, False)]
+
+    raise ValueError(f"unknown status: {status}")
 
 
-def evaluate_strategy(params: CaseParams, x1: int, x2: int, z: int) -> dict:
-    k1, u1 = part_entry_cost_and_quality(x1, params.c1, params.t1, params.p1)
-    k2, u2 = part_entry_cost_and_quality(x2, params.c2, params.t2, params.p2)
+def recovered_status(actual_good: bool, known_good: bool) -> str:
+    if actual_good and known_good:
+        return KNOWN_GOOD
+    if actual_good:
+        return RECOVERED_GOOD
+    return RECOVERED_BAD
 
-    good_prob = u1 * u2 * (1 - params.pf)
-    bad_prob = 1 - good_prob
 
-    # Local dominance rule for finished-product inspection.
-    y = 1 if params.tf < bad_prob * params.exchange_loss else 0
-    product_inspection_margin = bad_prob * params.exchange_loss - params.tf
+def initial_quality(params: CaseParams, mode1: int, mode2: int) -> tuple[float, float, float]:
+    u1 = 1.0 if mode1 == 0 else 1 - params.p1
+    u2 = 1.0 if mode2 == 0 else 1 - params.p2
+    g = u1 * u2 * (1 - params.pf)
+    return u1, u2, g
 
-    base_cost = k1 + k2 + params.ca + y * params.tf
 
-    v1 = recovered_part_value(x1, k1, u1, good_prob, bad_prob)
-    v2 = recovered_part_value(x2, k2, u2, good_prob, bad_prob)
-    recovery_value = v1 + v2
-    disassembly_margin = recovery_value - params.disassemble_cost
+def state_terms(
+    params: CaseParams,
+    mode1: int,
+    mode2: int,
+    y: int,
+    z: int,
+    state: tuple[str, str],
+) -> tuple[float, dict[tuple[str, str], float]]:
+    """Return one state's constant cost and transition probabilities."""
+    constant = 0.0
+    transitions: dict[tuple[str, str], float] = {}
+    status1, status2 = state
 
-    # If z = 1, the defective-product branch pays disassembly cost and recovers
-    # parts with expected value V. If z = 0, this term is omitted.
-    defective_branch_cost = (1 - y) * params.exchange_loss
-    if z:
-        defective_branch_cost += params.disassemble_cost - recovery_value
+    for prob1, cost1, good1, known1 in use_component_options(params, 1, mode1, status1):
+        for prob2, cost2, good2, known2 in use_component_options(params, 2, mode2, status2):
+            base_prob = prob1 * prob2
+            base_cost = cost1 + cost2 + params.ca + y * params.tf
 
-    expected_cost = (base_cost + bad_prob * defective_branch_cost) / good_prob
-    expected_profit = params.sale - expected_cost
+            if good1 and good2:
+                outcomes = [(1 - params.pf, True), (params.pf, False)]
+            else:
+                outcomes = [(1.0, False)]
+
+            for quality_prob, product_good in outcomes:
+                prob = base_prob * quality_prob
+                if prob == 0:
+                    continue
+
+                constant += prob * base_cost
+                if product_good:
+                    continue
+
+                extra = 0.0 if y else params.exchange_loss
+                if z:
+                    extra += params.disassemble_cost
+                    next_state = (
+                        recovered_status(good1, known1),
+                        recovered_status(good2, known2),
+                    )
+                else:
+                    next_state = (NONE, NONE)
+
+                constant += prob * extra
+                transitions[next_state] = transitions.get(next_state, 0.0) + prob
+
+    return constant, transitions
+
+
+def reachable_states(params: CaseParams, mode1: int, mode2: int, y: int, z: int):
+    start = (NONE, NONE)
+    seen = {start}
+    ordered = [start]
+    cursor = 0
+
+    while cursor < len(ordered):
+        state = ordered[cursor]
+        cursor += 1
+        _, transitions = state_terms(params, mode1, mode2, y, z, state)
+        for next_state, prob in transitions.items():
+            if prob <= 0 or next_state in seen:
+                continue
+            seen.add(next_state)
+            ordered.append(next_state)
+
+    return ordered
+
+
+def build_equations(params: CaseParams, mode1: int, mode2: int, y: int, z: int):
+    states = reachable_states(params, mode1, mode2, y, z)
+    index = {state: i for i, state in enumerate(states)}
+    n = len(states)
+    matrix = [[0.0 for _ in range(n)] for _ in range(n)]
+    rhs = [0.0 for _ in range(n)]
+
+    for i in range(n):
+        matrix[i][i] = 1.0
+
+    for state in states:
+        row = index[state]
+        constant, transitions = state_terms(params, mode1, mode2, y, z, state)
+        rhs[row] = constant
+        for next_state, prob in transitions.items():
+            matrix[row][index[next_state]] -= prob
+
+    return matrix, rhs, states
+
+
+def evaluate_strategy(params: CaseParams, mode1: int, mode2: int, z: int) -> dict:
+    _, _, g_initial = initial_quality(params, mode1, mode2)
+    q_initial = 1 - g_initial
+
+    y = 1 if params.tf < q_initial * params.exchange_loss else 0
+    product_inspection_margin = q_initial * params.exchange_loss - params.tf
+
+    matrix, rhs, states = build_equations(params, mode1, mode2, y, z)
+    try:
+        values = solve_linear_system(matrix, rhs)
+        expected_cost = values[states.index((NONE, NONE))]
+        expected_profit = params.sale - expected_cost
+        feasible = 1
+    except ValueError:
+        expected_cost = math.inf
+        expected_profit = -math.inf
+        feasible = 0
 
     return {
         "case": params.case,
-        "inspect_part1": x1,
-        "inspect_part2": x2,
-        "product_defect_prob_q": round(bad_prob, 6),
+        "part1_mode": PART_MODES[mode1],
+        "part2_mode": PART_MODES[mode2],
+        "part1_mode_id": mode1,
+        "part2_mode_id": mode2,
+        "product_defect_prob_q": round(q_initial, 6),
         "qL_minus_tf": round(product_inspection_margin, 6),
         "inspect_product_by_rule": y,
         "disassemble": z,
-        "recovery_value_V": round(recovery_value, 6),
-        "V_minus_d": round(disassembly_margin, 6),
-        "expected_cost": round(expected_cost, 6),
-        "expected_profit": round(expected_profit, 6),
+        "feasible": feasible,
+        "expected_cost": "inf" if not feasible else round(expected_cost, 6),
+        "expected_profit": "-inf" if not feasible else round(expected_profit, 6),
     }
 
 
 def evaluate_all() -> list[dict]:
     rows = []
     for params in CASES:
-        for x1, x2 in product([0, 1], repeat=2):
+        for mode1, mode2 in product([0, 1, 2], repeat=2):
             for z in [0, 1]:
-                rows.append(evaluate_strategy(params, x1, x2, z))
+                rows.append(evaluate_strategy(params, mode1, mode2, z))
     return rows
 
 
@@ -144,15 +303,23 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
+def sort_key(row: dict):
+    profit = -math.inf if row["expected_profit"] == "-inf" else float(row["expected_profit"])
+    return (row["case"], row["feasible"] == 0, -profit)
+
+
 def main() -> None:
     out_dir = Path(__file__).resolve().parent / "results"
     rows = evaluate_all()
-    rows.sort(key=lambda row: (row["case"], -row["expected_profit"]))
+    rows.sort(key=sort_key)
 
     best_rows = []
     for case_id in sorted({row["case"] for row in rows}):
-        case_rows = [row for row in rows if row["case"] == case_id]
-        best_rows.append(max(case_rows, key=lambda row: row["expected_profit"]))
+        case_rows = [
+            row for row in rows
+            if row["case"] == case_id and row["feasible"]
+        ]
+        best_rows.append(max(case_rows, key=lambda row: float(row["expected_profit"])))
 
     write_csv(out_dir / "q2_policy_results.csv", rows)
     write_csv(out_dir / "q2_best_policies.csv", best_rows)
@@ -161,12 +328,11 @@ def main() -> None:
     for row in best_rows:
         print(
             f"case {row['case']}: "
-            f"x1={row['inspect_part1']}, x2={row['inspect_part2']}, "
+            f"part1={row['part1_mode']}, part2={row['part2_mode']}, "
             f"y={row['inspect_product_by_rule']}, z={row['disassemble']}, "
             f"q={row['product_defect_prob_q']:.4f}, "
-            f"V={row['recovery_value_V']:.4f}, "
-            f"cost={row['expected_cost']:.4f}, "
-            f"profit={row['expected_profit']:.4f}"
+            f"cost={float(row['expected_cost']):.4f}, "
+            f"profit={float(row['expected_profit']):.4f}"
         )
 
 

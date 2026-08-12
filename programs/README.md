@@ -6,7 +6,11 @@ Enumerates the compressed Question 2 decision set and computes expected cost and
 
 The program follows the handoff workflow:
 
-- enumerate four part-inspection policies `(x1, x2)`
+- enumerate three modes for each part:
+  - `first_inspect`: inspect before first assembly; do not inspect again after disassembly
+  - `never_inspect`: do not inspect before assembly or after disassembly
+  - `inspect_after_recovery`: do not inspect before assembly, inspect after disassembly
+- combine them into `3 x 3` part policies
 - compute the corresponding finished-product defect probability `q`
 - decide finished-product inspection using `t_f < qL`
 - enumerate disassembly `z = 0, 1`
