@@ -149,7 +149,7 @@
 
 图~\ref{fig:q1-decision-boundaries}给出样本量变化时两个临界值的相对位置：接收上界始终位于拒收下界之下，两条曲线之间为证据不足区；对 $n=1,2,\ldots,200$ 的枚举结果复核表明，所有临界点均满足相应尾概率约束且判定域不重叠。
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.90\textwidth]{../../figures/q1/q1_decision_boundaries.pdf}
   \caption{二项模型的接收与拒收临界值随样本量的变化}
@@ -160,7 +160,7 @@
 
 问题一的主要风险有两类：结论可能对置信水平敏感，以及小总体下二项近似可能偏离无放回抽样。为此分别进行单因素置信水平扰动和有限总体情景分析，改变一个置信水平时保持 $p_0=0.10$ 及另一置信水平为题目给定值，观察相应方向首次存在判定域的样本量；改变 $N$ 时保持两类信度不变，观察统一样本量 $n_*$。本节所有 $N$ 均为检验网格，不是题面数据。
 
-表~\ref{tab:q1-confidence-sensitivity}与图~\ref{fig:q1-confidence-sensitivity}给出置信水平扰动结果。接收信度由 $0.80$ 提高到 $0.99$ 时，首次能够接收的样本量由 $16$ 增至 $44$，说明接收侧样本量对置信水平较敏感；接收方向需要用很少的次品数排除 $p\ge p_0$ 的情形，信度越高，必须积累越多无次品证据。拒收方向的方向性样本量变化较小，是因为该指标只要求存在一个极端拒收结果，并不衡量一般不合格批次的检验功效，不能把 $n_R=1$ 或 $2$ 单独解释为充分的统一方案。
+表~\ref{tab:q1-confidence-sensitivity}给出置信水平扰动结果。接收信度由 $0.80$ 提高到 $0.99$ 时，首次能够接收的样本量由 $16$ 增至 $44$；信度越高，需要积累越多无次品证据。拒收方向的方向性样本量变化较小，是因为该指标只要求存在一个极端拒收结果，并不衡量一般不合格批次的检验功效，不能把 $n_R=1$ 或 $2$ 单独解释为充分的统一方案。
 
 \begin{table}[H]
   \centering
@@ -178,13 +178,6 @@
     \bottomrule
   \end{tabular}
 \end{table}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.96\textwidth]{../../figures/q1/q1_confidence_sensitivity.pdf}
-  \caption{置信水平变化对方向性最小样本量的影响}
-  \label{fig:q1-confidence-sensitivity}
-\end{figure}
 
 表~\ref{tab:q1-population-sensitivity}与图~\ref{fig:q1-population-sensitivity}比较不同有限总体量下的超几何统一样本量及二项极限。总体量较小时，抽样占总体的比例较高，无放回抽样提供了更多总体组成信息，所需样本量小于二项模型结果；随着 $N$ 增大，有限总体修正逐渐减弱，当 $N=1000$ 和 $5000$ 时本组参数下 $n_*=22$，与二项模型一致。该趋势支持在总体量较大或抽样比例较低时使用二项模型，而小批次应优先采用超几何精确计算。
 

@@ -33,8 +33,8 @@ class TestQuestion4Sensitivity(unittest.TestCase):
     def test_deterministic_q2_best_tracks_ties(self) -> None:
         best = q4.deterministic_q2_best_by_case()
 
-        self.assertIn("1101", best[3])
-        self.assertIn("1111", best[3])
+        self.assertIn("1011011", best[3])
+        self.assertIn("1011111", best[3])
 
 
 if __name__ == "__main__":
